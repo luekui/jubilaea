@@ -183,9 +183,16 @@ details summary::-webkit-details-marker{display:none}
 </div>
 
 <div id="s3" class="scr off">
-  <div class="deth">
-    <button class="bkbtn" onclick="closeStamm()">&#8249; Zur&#252;ck</button>
-    <span class="dett">Stammbaum</span>
+  <div class="deth" style="flex-direction:column;align-items:stretch;gap:10px">
+    <div style="display:flex;align-items:center;gap:10px">
+      <button class="bkbtn" onclick="closeStamm()">&#8249; Zur&#252;ck</button>
+      <span class="dett">Stammbaum</span>
+    </div>
+    <div class="srchwrap">
+      <span class="srchicon">&#128269;</span>
+      <input class="srchinp" id="stammSrch" type="text" placeholder="Vorname, Nachname&#8230;" oninput="onStammSrch(this.value)">
+      <button class="srchclr" id="stammSrchClr" onclick="clrStammSrch()" style="display:none">&#10005;</button>
+    </div>
   </div>
   <div class="detb" id="stammBody"></div>
 </div>
@@ -202,7 +209,7 @@ details summary::-webkit-details-marker{display:none}
       <div class="drwsl">Info</div>
       <div class="drwitem" style="cursor:default"><span class="drwic">&#128101;</span><div><div class="drwl" id="drwcnt">&#8211;</div><div class="drwsl2" id="drwevs">&#8211;</div></div></div>
     </div>
-    <div class="drwf" id="drwver">Jubilaea &#183; Version <span id="versionLabel">1.4</span></div>
+    <div class="drwf" id="drwver">Jubilaea &#183; Version <span id="versionLabel">1.5</span></div>
   </div>
 </div>
 <div class="ovl" id="ovl" onclick="closeOvl()">
@@ -232,8 +239,8 @@ var MS=["Jan","Feb","M\u00e4r","Apr","Mai","Jun","Jul","Aug","Sep","Okt","Nov","
 var RT=["ist Mutter von","ist Vater von","ist verheiratet mit","ist Partner von","ist geschieden von"];
 var RNDS=[10,15,20,25,30,40,50,60,70,75,80,90,100];
 var TODAY=new Date(),CY=TODAY.getFullYear();
-var APP_VERSION="1.4";
-var DB={ind:{},rel:{},jub:{},nd:{}},CUR=null,SRCH=false,FILTER_NAH=true;
+var APP_VERSION="1.5";
+var DB={ind:{},rel:{},jub:{},nd:{}},CUR=null,SRCH=false,FILTER_NAH=true,PREV_SCR="s0";
 
 function saveDB(){try{localStorage.setItem("jub7",JSON.stringify(DB));}catch(e){}}
 function loadDB(){try{var r=localStorage.getItem("jub7");if(r){var d=JSON.parse(r);if(d&&d.ind&&Object.keys(d.ind).length>0){DB=d;return true;}}}catch(e){}return false;}
@@ -408,6 +415,9 @@ function rTOpts(){
 function openDet(pid){
   var p=DB.ind[pid];if(!p){showToast("Person nicht gefunden");return;}
   CUR=pid;
+  // Remember where we came from
+  var cur=document.querySelector('.scr:not(.off):not(.bk)');
+  PREV_SCR=cur?cur.id:"s0";
   document.getElementById("detTitle").textContent=pname(p);
   document.getElementById("detb").innerHTML=detHTML(p);
   showScr("s1");
@@ -569,7 +579,13 @@ function addNd(){
   saveDB();document.getElementById("detb").innerHTML=detHTML(DB.ind[CUR]);showToast("Namenstag hinzugef\u00fcgt");
 }
 function delNd(nid){delete DB.nd[nid];saveDB();document.getElementById("detb").innerHTML=detHTML(DB.ind[CUR]);showToast("Entfernt");}
-function closeDetail(){showScr("s0",true);if(SRCH)onSrch(document.getElementById("srch").value);else renderTL();}
+function closeDetail(){
+  var prev=PREV_SCR||"s0";
+  showScr(prev,true);
+  if(prev==="s3"){renderStamm();}
+  else if(SRCH){onSrch(document.getElementById("srch").value);}
+  else{renderTL();}
+}
 function confirmDel(){
   var p=DB.ind[CUR];
   showOvl(pname(p)+" l\u00f6schen?","Alle Daten dieser Person werden entfernt.",function(){
@@ -696,7 +712,8 @@ function showToast(msg){var e=document.getElementById("toast");e.textContent=msg
 
 
 // ── STAMMBAUM ────────────────────────────────────────────────
-var STAMM_OPEN = {}; // tracks which nodes are expanded
+var STAMM_OPEN = {};
+var STAMM_SRCH = ""; // tracks which nodes are expanded
 
 function getChildren(pid){
   // Returns array of person-ids who are children of pid
@@ -751,11 +768,11 @@ function getRoots(){
       roots.push(k);
     }
   }
-  // Sort roots by last name then first name
+  // Sort roots by first name
   roots.sort(function(a,b){
     var pa=DB.ind[a]||{},pb=DB.ind[b]||{};
-    var na=(pa.nn||"")+" "+(pa.vn||"");
-    var nb=(pb.nn||"")+" "+(pb.vn||"");
+    var na=(pa.vn||"")+" "+(pa.nn||"");
+    var nb=(pb.vn||"")+" "+(pb.nn||"");
     return na.localeCompare(nb);
   });
   return roots;
@@ -835,10 +852,52 @@ function stammLong(e){
   openDet(pid);
 }
 
+
+function onStammSrch(q){
+  STAMM_SRCH=q;
+  var clr=document.getElementById("stammSrchClr");
+  if(clr)clr.style.display=q?"block":"none";
+  renderStamm();
+}
+function clrStammSrch(){
+  STAMM_SRCH="";
+  var inp=document.getElementById("stammSrch");
+  if(inp)inp.value="";
+  var clr=document.getElementById("stammSrchClr");
+  if(clr)clr.style.display="none";
+  renderStamm();
+}
 function renderStamm(){
   var body=document.getElementById("stammBody");
   if(!body)return;
   try{
+    // If searching: show flat filtered list of all persons with parent/child relations
+    if(STAMM_SRCH.trim()){
+      var lq=STAMM_SRCH.toLowerCase();
+      var allWithRels=[], k, p;
+      for(k in DB.ind){
+        p=DB.ind[k];
+        if((getChildren(k).length>0||hasParent(k))&&
+           (p.vn+' '+p.nn).toLowerCase().indexOf(lq)>=0){
+          allWithRels.push(k);
+        }
+      }
+      allWithRels.sort(function(a,b){
+        var pa=DB.ind[a]||{},pb=DB.ind[b]||{};
+        return ((pa.vn||"")+" "+(pa.nn||"")).localeCompare((pb.vn||"")+" "+(pb.nn||""));
+      });
+      if(!allWithRels.length){
+        body.innerHTML='<div class="empty"><div style="font-size:40px;margin-bottom:12px">&#128269;</div><div>Niemanden gefunden</div></div>';
+        return;
+      }
+      var html='<div style="font-size:11px;color:var(--t3);padding:8px 0 14px">'+allWithRels.length+' Personen gefunden</div>';
+      for(var i=0;i<allWithRels.length;i++){
+        html+=stammNodeHTML(allWithRels[i],0);
+      }
+      body.innerHTML=html;
+      body.addEventListener("touchmove",function(){_stammMoved=true;},{passive:true});
+      return;
+    }
     var roots=getRoots();
     if(!roots.length){
       body.innerHTML='<div class="empty"><div style="font-size:40px;margin-bottom:12px">&#127968;</div><div>Keine Eltern-Kind-Beziehungen gefunden</div></div>';
@@ -857,6 +916,11 @@ function renderStamm(){
 }
 function openStamm(){
   STAMM_OPEN={};
+  STAMM_SRCH="";
+  var inp=document.getElementById("stammSrch");
+  if(inp)inp.value="";
+  var clr=document.getElementById("stammSrchClr");
+  if(clr)clr.style.display="none";
   renderStamm();
   showScr("s3");
 }
@@ -878,7 +942,7 @@ function closeStamm(){
 <script>
 if("serviceWorker" in navigator){
   window.addEventListener("load",function(){
-    navigator.serviceWorker.register("sw.js?v=1.4").then(function(reg){
+    navigator.serviceWorker.register("sw.js?v=1.5").then(function(reg){
       // Check for update immediately
       reg.update();
 
