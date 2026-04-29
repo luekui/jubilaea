@@ -179,7 +179,7 @@ details summary::-webkit-details-marker{display:none}
       <div class="drwsl">Info</div>
       <div class="drwitem" style="cursor:default"><span class="drwic">&#128101;</span><div><div class="drwl" id="drwcnt">&#8211;</div><div class="drwsl2" id="drwevs">&#8211;</div></div></div>
     </div>
-    <div class="drwf">Jubilaea &#183; localStorage</div>
+    <div class="drwf" id="drwver">Jubilaea &#183; Version <span id="versionLabel">1.1</span></div>
   </div>
 </div>
 <div class="ovl" id="ovl" onclick="closeOvl()">
@@ -209,6 +209,7 @@ var MS=["Jan","Feb","M\u00e4r","Apr","Mai","Jun","Jul","Aug","Sep","Okt","Nov","
 var RT=["ist Mutter von","ist Vater von","ist verheiratet mit","ist Partner von","ist geschieden von"];
 var RNDS=[10,15,20,25,30,40,50,60,70,75,80,90,100];
 var TODAY=new Date(),CY=TODAY.getFullYear();
+var APP_VERSION="1.1";
 var DB={ind:{},rel:{},jub:{},nd:{}},CUR=null,SRCH=false,FILTER_NAH=true;
 
 function saveDB(){try{localStorage.setItem("jub7",JSON.stringify(DB));}catch(e){}}
@@ -589,6 +590,8 @@ function saveNew(){
 }
 
 function openDrw(){
+  var vl=document.getElementById("versionLabel");
+  if(vl)vl.textContent=APP_VERSION;
   document.getElementById("drwcnt").textContent=Object.keys(DB.ind).length+" Personen";
   document.getElementById("drwevs").textContent=Object.keys(DB.jub).length+" Hochzeiten, "+Object.keys(DB.nd).length+" Namenstage";
   document.getElementById("drwovl").classList.add("on");
@@ -682,16 +685,27 @@ function showToast(msg){var e=document.getElementById("toast");e.textContent=msg
 <script>
 if("serviceWorker" in navigator){
   window.addEventListener("load",function(){
-    navigator.serviceWorker.register("sw.js").then(function(reg){
+    navigator.serviceWorker.register("sw.js?v=1.1").then(function(reg){
+      // Check for update immediately
       reg.update();
+
+      // New SW found during this session
       reg.addEventListener("updatefound",function(){
         var nw=reg.installing;
         nw.addEventListener("statechange",function(){
-          if(nw.state==="installed"&&navigator.serviceWorker.controller){showUpdateToast(nw);}
+          if(nw.state==="installed"&&navigator.serviceWorker.controller){
+            showUpdateToast(nw);
+          }
         });
       });
-      if(reg.waiting&&navigator.serviceWorker.controller){showUpdateToast(reg.waiting);}
+
+      // SW already waiting when app opens (most common case)
+      if(reg.waiting){
+        showUpdateToast(reg.waiting);
+      }
     }).catch(function(err){console.log("SW:",err);});
+
+    // When new SW takes control -> reload
     var ref=false;
     navigator.serviceWorker.addEventListener("controllerchange",function(){
       if(!ref){ref=true;window.location.reload();}
@@ -704,6 +718,7 @@ function showUpdateToast(w){
   t.innerHTML="&#128260; Update verf\u00fcgbar <button onclick=\"applyUpdate()\" style=\"background:var(--ac);color:#0c0c0e;border:none;border-radius:6px;padding:4px 10px;font-size:12px;font-weight:500;cursor:pointer;margin-left:8px\">Jetzt laden</button>";
   t.classList.add("on");
   t.style.whiteSpace="nowrap";
+  t.style.bottom="20px";
   window._pw=w;
 }
 function applyUpdate(){if(window._pw)window._pw.postMessage({type:"SKIP_WAITING"});}
