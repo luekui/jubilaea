@@ -115,6 +115,7 @@ body{background:var(--bg);color:var(--tx);font-family:Outfit,sans-serif;font-wei
 .starrow.open{transform:rotate(90deg)}
 .stchildren{margin-left:20px;margin-top:5px;border-left:2px solid var(--bd);padding-left:12px}
 .stnochildren{font-size:12px;color:var(--t3);padding:8px 0 4px;font-style:italic}
+.stkids{font-size:10px;color:var(--t3);background:var(--s3);border-radius:10px;padding:2px 7px;margin-left:4px;flex-shrink:0}
 ::-webkit-scrollbar{width:3px}
 ::-webkit-scrollbar-thumb{background:var(--b2);border-radius:3px}
 details summary{cursor:pointer;font-size:12px;color:var(--t2);padding:6px 0;list-style:none}
@@ -209,7 +210,7 @@ details summary::-webkit-details-marker{display:none}
       <div class="drwsl">Info</div>
       <div class="drwitem" style="cursor:default"><span class="drwic">&#128101;</span><div><div class="drwl" id="drwcnt">&#8211;</div><div class="drwsl2" id="drwevs">&#8211;</div></div></div>
     </div>
-    <div class="drwf" id="drwver">Jubilaea &#183; Version <span id="versionLabel">1.5</span></div>
+    <div class="drwf" id="drwver">Jubilaea &#183; Version <span id="versionLabel">1.8</span></div>
   </div>
 </div>
 <div class="ovl" id="ovl" onclick="closeOvl()">
@@ -239,7 +240,7 @@ var MS=["Jan","Feb","M\u00e4r","Apr","Mai","Jun","Jul","Aug","Sep","Okt","Nov","
 var RT=["ist Mutter von","ist Vater von","ist verheiratet mit","ist Partner von","ist geschieden von"];
 var RNDS=[10,15,20,25,30,40,50,60,70,75,80,90,100];
 var TODAY=new Date(),CY=TODAY.getFullYear();
-var APP_VERSION="1.5";
+var APP_VERSION="1.8";
 var DB={ind:{},rel:{},jub:{},nd:{}},CUR=null,SRCH=false,FILTER_NAH=true,PREV_SCR="s0";
 
 function saveDB(){try{localStorage.setItem("jub7",JSON.stringify(DB));}catch(e){}}
@@ -784,12 +785,13 @@ function stammNodeHTML(pid, depth){
   var open=!!STAMM_OPEN[pid];
   var partner=getPartner(pid);
   var age="", bday="";
+  var dead=p.tt&&p.tm;
   if(p.gt&&p.gm){
     var today=new Date();
     bday=p.gt+". "+MS[p.gm-1]+(p.gj?" "+p.gj:"");
-    if(p.gj) age=(today.getFullYear()-p.gj)+" J.";
+    if(p.gj&&!dead) age=(today.getFullYear()-p.gj)+" J.";
   }
-  var dead=p.tt&&p.tm?"&#128337; ":"";
+  var deadIcon="";  // no icon for deceased
   var html='<div class="stnode'+(depth===0?" root":"")+(open?" open":"")+(kids.length===0?" leaf":"")+'" id="stn_'+pid+'" data-pid="'+pid+'"'+
     ' onclick="stammClick(event)"'+
     ' oncontextmenu="stammLong(event)"'+
@@ -798,8 +800,8 @@ function stammNodeHTML(pid, depth){
     '>'+
     '<div class="stname">'+
       '<div class="gd" style="background:'+gcol(p.grp)+'"></div>'+
-      dead+esc(pname(p))+
-      (kids.length>0?'<span class="starrow'+(open?" open":"")+'">&#9654;</span>':'')+
+      deadIcon+esc(pname(p))+
+      (kids.length>0?'<span class="starrow'+(open?" open":"")+'">&#9654;</span><span class="stkids">'+kids.length+'</span>':'')+
     '</div>'+
     (age||bday?'<div class="stinfo">'+(age?age+" &middot; ":"")+bday+'</div>':'')+
     (partner?'<div class="stpartner">&#128141; '+esc(partner)+'</div>':'')+
@@ -942,7 +944,7 @@ function closeStamm(){
 <script>
 if("serviceWorker" in navigator){
   window.addEventListener("load",function(){
-    navigator.serviceWorker.register("sw.js?v=1.5").then(function(reg){
+    navigator.serviceWorker.register("sw.js?v=1.8").then(function(reg){
       // Check for update immediately
       reg.update();
 
