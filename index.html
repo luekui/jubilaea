@@ -210,7 +210,7 @@ details summary::-webkit-details-marker{display:none}
       <div class="drwsl">Info</div>
       <div class="drwitem" style="cursor:default"><span class="drwic">&#128101;</span><div><div class="drwl" id="drwcnt">&#8211;</div><div class="drwsl2" id="drwevs">&#8211;</div></div></div>
     </div>
-    <div class="drwf" id="drwver">Jubilaea &#183; Version <span id="versionLabel">1.8</span></div>
+    <div class="drwf" id="drwver">Jubilaea &#183; Version <span id="versionLabel">1.9</span></div>
   </div>
 </div>
 <div class="ovl" id="ovl" onclick="closeOvl()">
@@ -240,7 +240,7 @@ var MS=["Jan","Feb","M\u00e4r","Apr","Mai","Jun","Jul","Aug","Sep","Okt","Nov","
 var RT=["ist Mutter von","ist Vater von","ist verheiratet mit","ist Partner von","ist geschieden von"];
 var RNDS=[10,15,20,25,30,40,50,60,70,75,80,90,100];
 var TODAY=new Date(),CY=TODAY.getFullYear();
-var APP_VERSION="1.8";
+var APP_VERSION="1.9";
 var DB={ind:{},rel:{},jub:{},nd:{}},CUR=null,SRCH=false,FILTER_NAH=true,PREV_SCR="s0";
 
 function saveDB(){try{localStorage.setItem("jub7",JSON.stringify(DB));}catch(e){}}
@@ -789,7 +789,13 @@ function stammNodeHTML(pid, depth){
   if(p.gt&&p.gm){
     var today=new Date();
     bday=p.gt+". "+MS[p.gm-1]+(p.gj?" "+p.gj:"");
-    if(p.gj&&!dead) age=(today.getFullYear()-p.gj)+" J.";
+    if(p.gj&&!dead){
+      var a=today.getFullYear()-p.gj;
+      // Subtract 1 if birthday hasn't occurred yet this year
+      var bdayThisYear=new Date(today.getFullYear(),p.gm-1,p.gt);
+      if(bdayThisYear>today) a--;
+      age=a+" J.";
+    }
   }
   var deadIcon="";  // no icon for deceased
   var html='<div class="stnode'+(depth===0?" root":"")+(open?" open":"")+(kids.length===0?" leaf":"")+'" id="stn_'+pid+'" data-pid="'+pid+'"'+
@@ -944,7 +950,7 @@ function closeStamm(){
 <script>
 if("serviceWorker" in navigator){
   window.addEventListener("load",function(){
-    navigator.serviceWorker.register("sw.js?v=1.8").then(function(reg){
+    navigator.serviceWorker.register("sw.js?v=1.9").then(function(reg){
       // Check for update immediately
       reg.update();
 
