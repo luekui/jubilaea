@@ -1,4 +1,4 @@
-const CACHE = "jubilaea-v1";
+const CACHE = "jubilaea-v2";
 const ASSETS = [
   "./index.html",
   "./manifest.json",
@@ -12,7 +12,7 @@ self.addEventListener("install", function(e){
       return cache.addAll(ASSETS);
     })
   );
-  self.skipWaiting();
+  // Don't skipWaiting - wait for user confirmation
 });
 
 self.addEventListener("activate", function(e){
@@ -32,4 +32,11 @@ self.addEventListener("fetch", function(e){
       });
     })
   );
+});
+
+// Listen for skip waiting message from app
+self.addEventListener("message", function(e){
+  if(e.data && e.data.type === "SKIP_WAITING"){
+    self.skipWaiting();
+  }
 });
