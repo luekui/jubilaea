@@ -1,0 +1,694 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no">
+<title>Jubilaea</title>
+  <link rel="manifest" href="manifest.json">
+  <meta name="theme-color" content="#d4a853">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+  <meta name="apple-mobile-web-app-title" content="Jubilaea">
+  <link rel="apple-touch-icon" href="icons/icon-192.png">
+  <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,600;1,400;1,600&family=Outfit:wght@300;400;500&display=swap" rel="stylesheet">
+<style>
+:root{--bg:#0c0c0e;--sf:#161618;--s2:#1e1e22;--s3:#26262c;--ac:#d4a853;--a2:#f0c97a;--ad:#d4a85340;--tx:#ede9e0;--t2:#a09888;--t3:#5a5248;--bd:#272722;--b2:#323230;--g1:#7c6ee0;--g2:#5ca8d4;--g3:#5cb87a;--g4:#d47e5c;--g5:#c85c8a;--g6:#d4b45c;--g7:#8ab4d4;--g8:#c8c87a}
+*{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent}
+html,body{height:100%;overflow:hidden}
+body{background:var(--bg);color:var(--tx);font-family:Outfit,sans-serif;font-weight:300;max-width:430px;margin:0 auto;position:relative}
+.scr{position:absolute;inset:0;display:flex;flex-direction:column;transition:transform .3s,opacity .3s}
+.scr.off{transform:translateX(100%);opacity:0;pointer-events:none}
+.scr.bk{transform:translateX(-25%);opacity:0;pointer-events:none}
+.hdr{flex-shrink:0;padding:18px 20px 12px;border-bottom:1px solid var(--bd);background:var(--bg);position:relative;z-index:10}
+.hrow{display:flex;align-items:center;gap:10px;margin-bottom:12px}
+.apptitle{font-family:"Cormorant Garamond",serif;font-style:italic;font-size:26px;color:var(--a2);flex:1}
+.ibtn{width:38px;height:38px;border-radius:50%;border:1px solid var(--b2);background:var(--s2);color:var(--t2);font-size:16px;display:flex;align-items:center;justify-content:center;cursor:pointer;flex-shrink:0}
+.ibtn.ac{background:var(--ad);border-color:var(--ac);color:var(--a2)}
+.togbtn.active{background:var(--ad);border-color:var(--ac);color:var(--a2)}
+.srchwrap{position:relative}
+.srchicon{position:absolute;left:12px;top:50%;transform:translateY(-50%);color:var(--t3);pointer-events:none}
+.srchinp{width:100%;background:var(--s2);border:1px solid var(--b2);border-radius:10px;color:var(--tx);font-family:Outfit,sans-serif;font-size:14px;padding:10px 36px;outline:none}
+.srchinp:focus{border-color:var(--ac)}
+.srchinp::placeholder{color:var(--t3)}
+.srchclr{position:absolute;right:10px;top:50%;transform:translateY(-50%);background:none;border:none;color:var(--t3);cursor:pointer;font-size:16px;padding:4px 6px;display:none}
+#mc{flex:1;overflow-y:auto;-webkit-overflow-scrolling:touch;padding:6px 0 90px}
+.dg{padding:0 16px}
+.dl{font-size:11px;letter-spacing:.08em;text-transform:uppercase;color:var(--t3);padding:16px 0 5px;display:flex;align-items:center;gap:8px}
+.dll{flex:1;height:1px;background:var(--bd)}
+.dl.tod{color:var(--ac)}.dl.tod .dll{background:var(--ad)}
+.ec{display:flex;align-items:center;gap:10px;padding:11px 12px;border-radius:10px;margin-bottom:5px;background:var(--sf);border:1px solid var(--bd);cursor:pointer;position:relative;overflow:hidden}
+.ec.tod{border-color:var(--ac);background:linear-gradient(135deg,#1e1608,var(--sf) 70%)}
+.ec.rnd{background:linear-gradient(135deg,#1a1508,var(--sf) 60%);border-color:var(--ac)}
+.ec.rnd::before{content:"";position:absolute;inset:0;background:linear-gradient(135deg,var(--ad),transparent 50%);pointer-events:none}
+.gd{width:8px;height:8px;border-radius:50%;flex-shrink:0}
+.eico{font-size:17px;flex-shrink:0;width:26px;text-align:center}
+.en{font-size:15px;font-weight:500;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.es{font-size:11px;color:var(--t2);margin-top:2px}
+.eyr{text-align:right;flex-shrink:0}
+.ey{font-family:"Cormorant Garamond",serif;font-size:26px;font-weight:600;color:var(--ac);line-height:1}
+.ey.rnd{color:var(--a2)}
+.eyl{font-size:9px;color:var(--t3);text-transform:uppercase;letter-spacing:.06em}
+.rstar{font-size:10px;position:absolute;top:7px;right:7px}
+.sp{padding:13px 16px;border-bottom:1px solid var(--bd);cursor:pointer;display:flex;align-items:center;gap:10px}
+.spn{font-size:15px;font-weight:500}
+.sps{font-size:11px;color:var(--t2);margin-top:2px}
+.spe{font-size:11px;color:var(--t3);margin-top:3px}
+.deth{flex-shrink:0;padding:24px 16px 14px;border-bottom:1px solid var(--bd);display:flex;align-items:center;gap:10px}
+.bkbtn{background:none;border:none;color:var(--ac);cursor:pointer;font-size:15px;padding:4px 8px;border-radius:8px;font-family:Outfit,sans-serif;flex-shrink:0}
+.dett{font-family:"Cormorant Garamond",serif;font-style:italic;font-size:21px;color:var(--tx);flex:1;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.deta{display:flex;gap:8px;flex-shrink:0}
+.detb{flex:1;overflow-y:auto;-webkit-overflow-scrolling:touch;padding:16px 16px 100px}
+.sec{margin-bottom:22px}
+.stl{font-size:10px;letter-spacing:.12em;text-transform:uppercase;color:var(--t3);margin-bottom:8px;padding-bottom:5px;border-bottom:1px solid var(--bd)}
+.fr{display:flex;gap:8px;margin-bottom:8px}
+.fg{flex:1}
+.fl{font-size:10px;color:var(--t3);letter-spacing:.06em;text-transform:uppercase;margin-bottom:3px}
+.fi{width:100%;background:var(--s2);border:1px solid var(--b2);border-radius:8px;color:var(--tx);font-family:Outfit,sans-serif;font-size:14px;padding:9px 11px;outline:none}
+.fi:focus{border-color:var(--ac)}
+.fsel{width:100%;background:var(--s2);border:1px solid var(--b2);border-radius:8px;color:var(--tx);font-family:Outfit,sans-serif;font-size:14px;padding:9px 11px;outline:none;appearance:none}
+.d3{display:grid;grid-template-columns:1fr 2fr 1.5fr;gap:8px;margin-bottom:8px}
+.ri{display:flex;align-items:center;gap:10px;padding:9px 11px;background:var(--s2);border-radius:8px;margin-bottom:5px}
+.rit{flex:1;font-size:13px}
+.rityp{color:var(--t2);font-size:11px}
+.xbtn{background:none;border:none;color:var(--t3);font-size:16px;cursor:pointer;padding:2px 6px;flex-shrink:0}
+.addf{background:var(--s2);border-radius:8px;padding:11px;margin-top:7px}
+.btn{padding:9px 15px;border-radius:8px;font-family:Outfit,sans-serif;font-size:13px;font-weight:500;cursor:pointer;border:none;display:inline-flex;align-items:center}
+.btnp{background:var(--ac);color:#0c0c0e}
+.btns{background:var(--s3);color:var(--t2)}
+.btnd{background:#3a1515;color:#e07070}
+.btnsm{padding:7px 11px;font-size:12px}
+.fab{position:absolute;bottom:22px;right:18px;width:52px;height:52px;border-radius:50%;background:var(--ac);color:#0c0c0e;font-size:28px;border:none;cursor:pointer;box-shadow:0 4px 20px #d4a85360;display:flex;align-items:center;justify-content:center;z-index:50}
+.drwovl{position:absolute;inset:0;background:#00000070;z-index:400;opacity:0;pointer-events:none;transition:opacity .28s}
+.drwovl.on{opacity:1;pointer-events:all}
+.drw{position:absolute;top:0;right:0;bottom:0;width:78%;max-width:300px;background:var(--sf);transform:translateX(100%);transition:transform .3s cubic-bezier(.4,0,.2,1);display:flex;flex-direction:column;z-index:401;border-left:1px solid var(--b2)}
+.drwovl.on .drw{transform:translateX(0)}
+.drwh{padding:28px 18px 14px;border-bottom:1px solid var(--bd);display:flex;align-items:center;justify-content:space-between}
+.drwt{font-family:"Cormorant Garamond",serif;font-style:italic;font-size:20px;color:var(--a2)}
+.drwx{background:none;border:none;color:var(--t3);font-size:20px;cursor:pointer;padding:4px}
+.drwb{flex:1;overflow-y:auto;padding:8px 0}
+.drwsl{font-size:10px;letter-spacing:.1em;text-transform:uppercase;color:var(--t3);padding:14px 18px 4px}
+.drwitem{display:flex;align-items:center;gap:14px;padding:13px 18px;cursor:pointer;border-bottom:1px solid var(--bd)}
+.drwitem:last-child{border-bottom:none}
+.drwic{font-size:19px;width:26px;text-align:center}
+.drwl{font-size:14px;color:var(--tx)}
+.drwsl2{font-size:11px;color:var(--t3);margin-top:2px}
+.drwf{padding:14px 18px;font-size:11px;color:var(--t3);border-top:1px solid var(--bd)}
+.dupwarn{background:#2a1a08;border:1px solid var(--ac);border-radius:8px;padding:10px 13px;margin-bottom:11px;font-size:12px;color:var(--a2);display:none}
+.dupitem{padding:6px 0;border-bottom:1px solid var(--bd);cursor:pointer;font-size:13px;color:var(--t2);display:flex;align-items:center;gap:8px}
+.dupitem:last-child{border-bottom:none}
+.ovl{position:absolute;inset:0;background:#00000080;display:flex;align-items:flex-end;z-index:300;opacity:0;pointer-events:none;transition:opacity .2s}
+.ovl.on{opacity:1;pointer-events:all}
+.dlg{background:var(--sf);border-radius:20px 20px 0 0;padding:22px 18px 34px;width:100%;transform:translateY(100%);transition:transform .3s cubic-bezier(.4,0,.2,1)}
+.ovl.on .dlg{transform:translateY(0)}
+.toast{position:absolute;bottom:88px;left:50%;transform:translateX(-50%) translateY(16px);background:var(--s3);color:var(--tx);padding:10px 18px;border-radius:20px;font-size:13px;white-space:nowrap;opacity:0;transition:all .3s;z-index:500;pointer-events:none}
+.toast.on{opacity:1;transform:translateX(-50%) translateY(0)}
+.empty{text-align:center;padding:60px 20px;color:var(--t3)}
+::-webkit-scrollbar{width:3px}
+::-webkit-scrollbar-thumb{background:var(--b2);border-radius:3px}
+details summary{cursor:pointer;font-size:12px;color:var(--t2);padding:6px 0;list-style:none}
+details summary::-webkit-details-marker{display:none}
+</style>
+</head>
+<body>
+<div id="s0" class="scr">
+  <div class="hdr">
+    <div class="hrow">
+      <span class="apptitle">Jubilaea</span>
+      <button class="ibtn togbtn active" id="filterbtn" onclick="toggleFilter()" title="Nah (Gruppen 4-8)">&#128101;</button>
+      <button class="ibtn" onclick="openDrw()" title="Menu">&#9776;</button>
+    </div>
+    <div class="srchwrap">
+      <span class="srchicon">&#128269;</span>
+      <input class="srchinp" id="srch" type="text" placeholder="Name, Nachname, M&#228;dchenname&#8230;" oninput="onSrch(this.value)">
+      <button class="srchclr" id="srchclr" onclick="clrSrch()">&#10005;</button>
+    </div>
+  </div>
+  <div id="mc"></div>
+  <button class="fab" onclick="openNew()">+</button>
+</div>
+<div id="s1" class="scr off">
+  <div class="deth">
+    <button class="bkbtn" onclick="closeDetail()">&#8249; Zur&#252;ck</button>
+    <span class="dett" id="detTitle"></span>
+    <div class="deta">
+      <button class="ibtn ac" onclick="saveDetail()">&#10003;</button>
+      <button class="ibtn" onclick="confirmDel()" style="color:#e07070">&#128465;</button>
+    </div>
+  </div>
+  <div class="detb" id="detb"></div>
+</div>
+<div id="s2" class="scr off">
+  <div class="deth">
+    <button class="bkbtn" onclick="closeNew()">&#8249; Zur&#252;ck</button>
+    <span class="dett">Neue Person</span>
+    <button class="ibtn ac" onclick="saveNew()">&#10003;</button>
+  </div>
+  <div class="detb">
+    <div class="dupwarn" id="dupwarn"><strong>&#9888; &#196;hnliche Personen:</strong><div id="duplist"></div></div>
+    <div class="sec"><div class="stl">Name</div>
+      <div class="fr">
+        <div class="fg"><div class="fl">Vorname *</div><input class="fi" id="nVn" placeholder="Vorname" oninput="chkDup()"></div>
+        <div class="fg"><div class="fl">Nachname</div><input class="fi" id="nNn" placeholder="Nachname" oninput="chkDup()"></div>
+      </div>
+      <div class="fr">
+        <div class="fg"><div class="fl">Mittelnamen</div><input class="fi" id="nMit" placeholder="optional"></div>
+        <div class="fg"><div class="fl">M&#228;dchenname</div><input class="fi" id="nMaed" placeholder="optional"></div>
+      </div>
+      <div class="fr">
+        <div class="fg"><div class="fl">Geschlecht</div><select class="fsel" id="nGesl"><option value="">&#8211;</option><option value="m">m</option><option value="w">w</option></select></div>
+        <div class="fg"><div class="fl">Gruppe</div><select class="fsel" id="nGrp"></select></div>
+      </div>
+      <div class="fl">Notizen</div><input class="fi" id="nNot" placeholder="optional">
+    </div>
+    <div class="sec"><div class="stl">Geburtstag</div>
+      <div class="d3">
+        <div><div class="fl">Tag</div><input class="fi" id="nGT" type="number" min="1" max="31" placeholder="TT"></div>
+        <div><div class="fl">Monat</div><select class="fsel" id="nGM"></select></div>
+        <div><div class="fl">Jahr</div><input class="fi" id="nGJ" type="number" placeholder="JJJJ"></div>
+      </div>
+    </div>
+  </div>
+</div>
+<div class="drwovl" id="drwovl" onclick="closeDrw()">
+  <div class="drw" onclick="event.stopPropagation()">
+    <div class="drwh"><span class="drwt">Jubilaea</span><button class="drwx" onclick="closeDrw()">&#10005;</button></div>
+    <div class="drwb">
+      <div class="drwsl">Daten</div>
+      <div class="drwitem" onclick="closeDrw();document.getElementById('impf').click()"><span class="drwic">&#128229;</span><div><div class="drwl">CSVs importieren</div><div class="drwsl2">5 Dateien ausw&#228;hlen, &#252;berschreibt alle Daten</div></div></div>
+      <div class="drwitem" onclick="closeDrw();doExport()"><span class="drwic">&#128228;</span><div><div class="drwl">Alle CSVs exportieren</div><div class="drwsl2">5 Dateien im Originalformat</div></div></div>
+      <div class="drwsl">Info</div>
+      <div class="drwitem" style="cursor:default"><span class="drwic">&#128101;</span><div><div class="drwl" id="drwcnt">&#8211;</div><div class="drwsl2" id="drwevs">&#8211;</div></div></div>
+    </div>
+    <div class="drwf">Jubilaea &#183; localStorage</div>
+  </div>
+</div>
+<div class="ovl" id="ovl" onclick="closeOvl()">
+  <div class="dlg" onclick="event.stopPropagation()">
+    <div style="font-size:16px;font-weight:500;margin-bottom:7px" id="ovlT"></div>
+    <div style="font-size:13px;color:var(--t2);margin-bottom:18px" id="ovlS"></div>
+    <div style="display:flex;gap:10px">
+      <button class="btn btnd" style="flex:1" id="ovlOk"></button>
+      <button class="btn btns" style="flex:1" onclick="closeOvl()">Abbrechen</button>
+    </div>
+  </div>
+</div>
+<div class="toast" id="toast"></div>
+<input type="file" id="impf" style="display:none" accept=".csv" multiple onchange="doImport(event)">
+<div id="err" style="position:fixed;bottom:0;left:0;right:0;background:#800;color:#fff;font-size:11px;padding:8px;display:none;z-index:9999;word-break:break-all"></div>
+<script>
+var _IND={"P00001":["Luke","","Skywalker","","m","2","",5,6,1979,0,0,0,0,0,0],"P00002":["Mickey","","Mouse","","m","2","",6,6,1981,0,0,0,0,0,0],"P00004":["Gandalf","","Grey","","w","2","",8,6,1934,0,0,0,0,0,0],"P00005":["Harry","","Potter","","m","3","",10,6,1993,0,0,0,0,0,0],"P00006":["Diana","","Spencer","","m","2","",10,6,1977,0,0,0,0,0,0],"P00007":["Michael","","Jackson","","m","1","",10,6,1968,0,0,0,0,0,0],"P00008":["Alice","","Weidel","","w","4","",30,11,1984,0,0,0,0,0,0],"P00009":["Tony","","Stark","","w","2","SH",12,6,1952,0,0,0,0,0,0],"P00010":["Bruce","","Wayne","","m","7","",12,6,0,0,0,0,0,0,0],"P00011":["Hermione","","Granger","","m","7","",13,6,1966,0,0,0,0,0,0],"P00012":["Katniss","","Everdeen","Ineichen","w","3","",14,6,1985,0,0,0,0,0,0],"P00013":["Frodo","","Baggins","","m","1","",14,6,1984,0,0,0,0,0,0],"P00014":["Ellen","J.","Ripley","","m","8","",14,6,1946,0,0,0,0,0,0],"P00015":["Han","","Solo","","m","7","",14,12,1978,0,0,0,15,6,2001],"P00016":["Peter","","Parker","","w","2","",15,6,1937,0,0,0,0,0,0],"P00017":["Clark","","Kent","","m","7","",2,3,1967,0,0,0,15,6,0],"P00018":["Wolverine","","Logan","","m","2","",16,6,1984,0,0,0,0,0,0],"P00019":["Natasha","","Romanoff","","m","7","",16,6,1979,0,0,0,0,0,0],"P00020":["Dumbledore","","Albus","","m","7","",18,6,1983,0,0,0,0,0,0],"P00021":["Lara","","Croft","","w","2","",18,6,1979,0,0,0,0,0,0],"P00022":["Indiana","","Jones","","m","7","",18,6,0,0,0,0,27,4,2015],"P00023":["Jack","","Sparrow","","m","2","",19,6,1957,0,0,0,0,0,0],"P00024":["Neo","","Anderson","","w","7","",19,6,1954,0,0,0,0,0,0],"P00025":["Trinity","","Moss","","w","6","Bollstrasse",20,6,0,0,0,0,0,0,0],"P00026":["Aragorn","","Elessar","","m","3","",21,6,1994,0,0,0,0,0,0],"P00027":["Legolas","","Greenleaf","Ineichen","w","3","",21,6,1982,0,0,0,0,0,0],"P00028":["Bilbo","","Baggins","","w","6","",22,6,1989,0,0,0,0,0,0],"P00029":["Samwise","","Gamgee","","m","3","",23,6,2021,0,0,0,0,0,0],"P00030":["Vito","","Corleone","","w","7","",23,6,1970,0,0,0,19,3,2014],"P00031":["Michael","","Corleone","","w","6","",24,6,1986,0,0,0,0,0,0],"P00032":["Ellen","","DeGeneres","","m","4","",24,6,1974,0,0,0,0,0,0],"P00033":["Oprah","","Winfrey","","w","6","",24,6,1963,0,0,0,0,0,0],"P00034":["Elon","","Musk","","w","3","",25,6,1992,0,0,0,0,0,0],"P00035":["Beyonce","","Knowles","","m","3","",25,6,1992,0,0,0,0,0,0],"P00036":["Sherlock","","Holmes","","w","8","",25,6,1979,0,0,0,0,0,0],"P00037":["John","","Watson","","w","2","",26,6,0,0,0,0,0,0,0],"P00038":["Hannibal","","Lecter","","m","7","",27,6,1984,0,0,0,0,0,0],"P00039":["Clarice","","Starling","","m","3","",28,6,1982,0,0,0,0,0,0],"P00040":["Atticus","","Finch","","w","7","",29,6,1971,0,0,0,0,0,0],"P00041":["Scout","","Finch","","m","1","",1,7,1984,0,0,0,0,0,0],"P00042":["James","","Bond","","w","7","",1,7,1972,0,0,0,0,0,0],"P00043":["M","Frances","M","","w","8","",1,7,1961,31,8,1997,0,0,0],"P00044":["Darth","Carl","Vader","","m","8","",1,7,1961,0,0,0,0,0,0],"P00045":["Leia","","Organa","","m","1","",1,7,0,0,0,0,0,0,0],"P00046":["Yoda","","Master","","m","2","",3,7,0,0,0,0,0,0,0],"P00047":["Obi-Wan","","Kenobi","","m","8","",12,1,1863,4,7,1902,0,0,0],"P00048":["Anakin","","Skywalker","","m","7","",5,7,1979,0,0,0,0,0,0],"P00049":["Padme","","Amidala","","w","7","",5,7,1965,0,0,0,0,0,0],"P00050":["Rey","","Skywalker","","w","6","",6,7,1993,0,0,0,0,0,0],"P00051":["Finn","","FN-2187","Roos","w","3","",7,7,1992,0,0,0,0,0,0],"P00052":["Poe","","Dameron","","w","8","",8,7,1992,0,0,0,0,0,0],"P00053":["Homer","","Simpson","","w","7","",8,7,1969,0,0,0,0,0,0],"P00054":["Marge","","Simpson","","w","7","",8,7,1969,19,5,2023,0,0,0],"P00055":["Bart","","Simpson","","m","1","",9,7,1984,0,0,0,0,0,0],"P00056":["Lisa","","Simpson","","w","3","",9,7,1961,0,0,0,0,0,0],"P00057":["Rick","","Sanchez","","m","1","",10,7,1984,0,0,0,0,0,0],"P00058":["Morty","","Smith","","m","1","",10,7,1984,0,0,0,0,0,0],"P00059":["Walter","","White","","m","1","",11,7,1984,0,0,0,0,0,0],"P00060":["Jesse","","Pinkman","","m","1","",11,7,1968,0,0,0,0,0,0],"P00061":["Saul","Chandra","Goodman","","w","5","",4,9,1986,0,0,0,0,0,0],"P00062":["Tony","","Soprano","","m","7","",12,7,1985,0,0,0,6,5,2011],"P00063":["Carmela","","Soprano","","m","5","",13,7,1952,0,0,0,0,0,0],"P00064":["Daenerys","","Targaryen","","m","7","",14,7,1954,0,0,0,0,0,0],"P00065":["Jon","","Snow","","m","7","",14,7,1949,0,0,0,0,0,0],"P00066":["Tyrion","","Lannister","","w","7","",16,7,1941,27,3,2013,0,0,0],"P00067":["Arya","Solis","Stark","","m","4","",18,7,1984,0,0,0,0,0,0],"P00068":["Sansa","","Stark","","m","8","",18,7,1918,5,12,2013,0,0,0],"P00069":["Ned","","Stark","","w","4","",18,7,0,0,0,0,0,0,0],"P00070":["Cersei","","Lannister","","w","3","",19,7,1991,0,0,0,0,0,0],"P00071":["Jaime","","Lannister","","w","6","",19,7,1981,0,0,0,0,0,0],"P00072":["Joffrey","","Baratheon","","w","1","",20,7,1984,0,0,0,0,0,0],"P00073":["Gollum","","Smeagol","","m","7","",20,7,1952,0,0,0,0,0,0],"P00074":["Thorin","","Oakenshield","","m","3","",21,7,2005,0,0,0,0,0,0],"P00075":["Gimli","","Gloin","","m","1","",21,7,1986,0,0,0,0,0,0],"P00076":["Eowyn","","Shieldmaiden","","w","2","",21,7,1984,0,0,0,0,0,0],"P00077":["Merry","","Brandybuck","","m","3","",22,7,2020,0,0,0,0,0,0],"P00078":["Pippin","","Took","","m","2","",24,7,1971,0,0,0,0,0,0],"P00079":["Hagrid","","Rubeus","","m","2","",24,7,1963,0,0,0,0,0,0],"P00080":["Snape","Sophie","Severus","","w","3","",26,7,2019,0,0,0,0,0,0],"P00081":["Voldemort","","Lord","","w","3","",27,7,1991,0,0,0,0,0,0],"P00082":["Draco","","Malfoy","","w","3","",28,7,1991,0,0,0,0,0,0],"P00083":["Luna","","Lovegood","","w","2","",29,7,1961,0,0,0,0,0,0],"P00084":["Ron","","Weasley","","m","2","",29,7,1957,0,0,0,0,0,0],"P00085":["Ginny","","Weasley","","m","2","",30,7,1982,0,0,0,0,0,0],"P00086":["Sirius","","Black","","m","1","",31,7,1984,0,0,0,0,0,0],"P00087":["Remus","","Lupin","","w","1","",31,7,1984,0,0,0,0,0,0],"P00088":["Bellatrix","","Lestrange","","m","4","",31,7,1976,0,0,0,0,0,0],"P00089":["Peeta","","Mellark","","w","1","",1,8,1984,0,0,0,0,0,0],"P00090":["Haymitch","","Abernathy","","w","1","",1,8,1982,0,0,0,0,0,0],"P00091":["Primrose","Markus","Everdeen","","m","7","",28,5,1967,0,0,0,2,8,1996],"P00092":["Gale","","Hawthorne","","m","4","",2,8,0,0,0,0,0,0,0],"P00093":["Elizabeth","","Bennet","","w","6","",3,8,2020,0,0,0,0,0,0],"P00094":["Darcy","","Fitzwilliam","","m","4","",3,8,2018,0,0,0,0,0,0],"P00095":["Jane","","Eyre","","w","7","",3,2,1978,0,0,0,3,8,2015],"P00096":["Rochester","","Edward","","m","6","",3,8,1984,0,0,0,0,0,0],"P00097":["Heathcliff","","Wuthering","","m","7","",3,8,1964,0,0,0,0,0,0],"P00098":["Cathy","","Earnshaw","","w","6","",4,8,2020,0,0,0,0,0,0],"P00099":["Scarlett","","O'Hara","","w","1","",4,8,1983,0,0,0,0,0,0],"P00100":["Rhett","","Butler","","m","6","",4,8,1974,0,0,0,0,0,0],"P00101":["Holden","","Caulfield","","m","3","",6,8,1952,0,0,0,0,0,0],"P00102":["Hester","","Prynne","Kösler","w","5","G-Grosi",6,8,1926,12,12,2022,0,0,0],"P00103":["Arthur","","Dimmesdale","","m","8","",7,5,1861,7,8,1941,0,0,0],"P00104":["Pip","","Pirrip","","w","3","",8,8,2018,0,0,0,0,0,0],"P00105":["Ebenezer","","Scrooge","","w","7","",9,8,1980,0,0,0,0,0,0],"P00106":["Bob","","Cratchit","","m","1","",10,8,1984,0,0,0,0,0,0],"P00107":["Tiny","Valentina","Tim","","w","6","",12,8,2017,0,0,0,0,0,0],"P00108":["Oliver","","Twist","","m","6","",26,5,1969,0,0,0,0,0,0],"P00109":["Fagin","","Thief","","w","7","",12,8,1991,0,0,0,31,3,2019],"P00110":["Jean","","Valjean","","w","7","",13,8,1969,0,0,0,0,0,0],"P00111":["Cosette","","Fantine","","w","7","",13,8,1939,0,0,0,0,0,0],"P00112":["Javert","","Inspector","","m","6","",14,8,1984,0,0,0,0,0,0],"P00113":["Winston","","Smith","","w","7","",14,8,1968,0,0,0,30,4,1993],"P00114":["Julia","","O'Brien","","m","4","",14,8,0,0,0,0,0,0,0],"P00115":["Big","","Brother","","m","8","",15,8,1872,5,12,1950,0,0,0],"P00116":["Ahab","","Captain","","m","1","",16,8,1983,0,0,0,0,0,0],"P00117":["Ishmael","","Sailor","","m","8","",18,2,1836,16,8,1886,0,0,0],"P00118":["Queequeg","","Harpooneer","","w","7","",17,8,0,0,0,0,20,5,1993],"P00119":["Huck","","Finn","","m","4","",18,8,1983,0,0,0,0,0,0],"P00120":["Tom","","Sawyer","","m","3","",19,8,1998,0,0,0,0,0,0],"P00121":["Becky","","Thatcher","","m","2","",19,8,1979,0,0,0,0,0,0],"P00122":["Injun","","Joe","","m","7","",20,8,1984,0,0,0,15,2,2009],"P00123":["Aslan","","Lion","","w","4","",20,8,1972,0,0,0,0,0,0],"P00124":["Lucy","","Pevensie","","m","7","",20,8,0,0,0,0,0,0,0],"P00125":["Edmund","","Pevensie","","w","7","",21,8,1984,0,0,0,0,0,0],"P00126":["Susan","","Pevensie","","m","1","",21,8,1984,0,0,0,0,0,0],"P00127":["Peter","","Pevensie","","m","7","",21,8,0,0,0,0,0,0,0],"P00128":["Caspian","Ladina","Prince","","w","4","",22,8,2021,0,0,0,0,0,0],"P00129":["Jadis","","White","","m","2","",22,8,1985,0,0,0,0,0,0],"P00130":["Reepicheep","","Mouse","","w","1","",22,8,1984,0,0,0,0,0,0],"P00131":["Tumnus","","Faun","","m","3","sen.",22,8,1962,0,0,0,0,0,0],"P00132":["Mowgli","","Jungle","","w","2","",22,8,0,0,0,0,0,0,0],"P00133":["Baloo","","Bear","","w","1","",23,8,1984,0,0,0,0,0,0],"P00134":["Bagheera","","Panther","","m","7","",23,8,0,0,0,0,0,0,0],"P00135":["Shere","","Khan","","m","7","",23,8,0,0,0,0,0,0,0],"P00136":["Kaa","","Snake","","m","6","Leogang",24,8,1966,0,0,0,0,0,0],"P00137":["Winnie","","Pooh","","m","1","",25,8,1983,0,0,0,0,0,0],"P00138":["Piglet","","Friend","","m","8","",25,8,1918,14,10,1990,0,0,0],"P00139":["Tigger","","Bounce","","w","8","",26,8,1910,5,9,1997,0,0,0],"P00140":["Eeyore","","Donkey","","m","7","",0,0,0,0,0,0,0,0,0],"P00141":["Christopher","","Robin","","w","7","",27,8,1962,0,0,0,3,4,1981],"P00142":["Peter","","Pan","","m","8","",29,8,1972,0,0,0,0,0,0],"P00143":["Wendy","","Darling","","m","7","",29,8,1946,0,0,0,0,0,0],"P00144":["Captain","Sergeyevich","Hook","","m","8","",2,3,1931,30,8,2022,0,0,0],"P00145":["Tinker","","Bell","","m","3","",30,8,1992,0,0,0,0,0,0],"P00146":["Alice","","Wonderland","","m","7","",30,8,1939,0,0,0,0,0,0],"P00147":["Mad","","Hatter","","m","4","",30,8,0,0,0,0,0,0,0],"P00148":["Cheshire","","Cat","","w","1","",31,8,1984,0,0,0,0,0,0],"P00149":["White","","Rabbit","","m","2","",31,8,1938,0,0,0,0,0,0],"P00150":["Queen","","Hearts","","m","7","",1,9,1975,0,0,0,0,0,0],"P00151":["Dorothy","","Gale","","m","7","",4,9,1959,0,0,0,0,0,0],"P00152":["Toto","","Dog","","m","3","",0,0,0,0,0,0,0,0,0],"P00153":["Scarecrow","","Straw","Roos","w","3","",5,9,1986,0,0,0,0,0,0],"P00154":["Tin","","Woodman","","m","7","",6,9,1984,0,0,0,0,0,0],"P00155":["Cowardly","","Lion","","m","3","",7,9,2019,0,0,0,0,0,0],"P00157":["Glinda","","Good","","w","1","",8,9,1983,0,0,0,0,0,0],"P00158":["Wicked","","Witch","","m","4","",8,9,1966,0,0,0,0,0,0],"P00159":["Smaug","","Dragon","","m","7","",8,9,1965,0,0,0,0,0,0],"P00160":["Bard","","Bowman","","m","3","jun.",21,5,1984,0,0,0,0,0,0],"P00161":["Beorn","","Shapeshifter","","w","7","",10,9,1990,0,0,0,0,0,0],"P00162":["Elrond","","Lord","","m","1","",10,9,1983,0,0,0,0,0,0],"P00163":["Galadriel","","Lady","","w","6","Zora",13,9,1991,0,0,0,0,0,0],"P00164":["Saruman","","White","","w","7","",13,9,1970,0,0,0,0,0,0],"P00165":["Gandalf","Bill","Mithrandir","","m","8","",31,10,1930,14,9,2022,0,0,0],"P00166":["Radagast","","Brown","","m","7","",19,1,1966,0,0,0,0,0,0],"P00167":["Tom","","Bombadil","","m","1","",14,9,1984,0,0,0,0,0,0],"P00168":["Goldberry","","River","","w","7","",15,9,1970,0,0,0,0,0,0],"P00169":["Shadowfax","","Horse","","m","7","",15,9,1951,0,0,0,0,0,0],"P00170":["Treebeard","","Ent","","w","3","",17,9,1963,0,0,0,0,0,0],"P00171":["Grima","","Wormtongue","","m","2","",18,9,1988,0,0,0,0,0,0],"P00172":["Eomer","","Rohan","","m","7","",18,9,1973,0,0,0,0,0,0],"P00173":["Theoden","","King","","w","2","",18,9,1962,0,0,0,0,0,0],"P00174":["Denethor","","Steward","","m","2","",19,9,1984,0,0,0,0,0,0],"P00175":["Faramir","","Gondor","","m","1","",19,9,1983,0,0,0,0,0,0],"P00176":["Boromir","Anne","Gondor","","w","1","",19,9,1982,0,0,0,0,0,0],"P00177":["Rosie","","Cotton","","w","3","",20,9,1995,0,0,0,0,0,0],"P00178":["Arwen","","Evenstar","","m","1","",20,9,1954,0,0,0,0,0,0],"P00179":["Sauron","","Dark","","w","1","",22,9,1941,0,0,0,0,0,0],"P00180":["Nazgul","","Ring","","w","1","",23,9,1984,0,0,0,0,0,0],"P00181":["Shelob","","Spider","","w","1","",23,9,1984,0,0,0,0,0,0],"P00182":["Fili","","Dwarf","","w","2","",23,9,1959,0,0,0,0,0,0],"P00183":["Kili","","Dwarf","","m","6","(Sohn von Sandro)",23,9,0,0,0,0,0,0,0],"P00185":["Balin","","Dwarf","","w","2","",24,9,1984,0,0,0,0,0,0],"P00186":["Dwalin","","Dwarf","","m","2","",27,9,1987,0,0,0,0,0,0],"P00187":["Oin","","Dwarf","","w","7","",27,9,1961,0,0,0,0,0,0],"P00188":["Gloin","","Dwarf","","m","3","",28,9,1990,0,0,0,0,0,0],"P00189":["Bifur","","Dwarf","","m","1","",28,9,1982,0,0,0,0,0,0],"P00190":["Bofur","","Dwarf","","w","7","",28,9,1976,0,0,0,0,0,0],"P00191":["Bombur","","Dwarf","","m","1","",28,9,1976,0,0,0,0,0,0],"P00192":["Dori","","Dwarf","","m","2","",28,9,1965,0,0,0,0,0,0],"P00193":["Nori","","Dwarf","","w","5","Gotti",28,9,1936,28,2,2023,0,0,0],"P00194":["Ori","","Dwarf","Hürlimann","w","8","",30,9,1993,0,0,0,0,0,0],"P00195":["Thranduil","","King","","m","1","",30,9,1984,0,0,0,0,0,0],"P00196":["Legolas","","Thranduilion","","m","2","",1,10,1979,0,0,0,0,0,0],"P00197":["Hela","","Odinsdottir","","w","2","",1,10,1935,0,0,0,0,0,0],"P00198":["Thor","","Odinson","","w","1","",2,10,1984,0,0,0,0,0,0],"P00199":["Loki","","Laufeyson","","m","7","",4,10,1954,0,0,0,0,0,0],"P00200":["Odin","","Allfather","Kösler","m","3","",0,0,0,5,10,1994,0,0,0],"P00201":["Frigga","","Queen","","w","1","",5,10,1984,0,0,0,0,0,0],"P00202":["Heimdall","","Guardian","","w","6","",6,10,2020,0,0,0,0,0,0],"P00203":["Valkyrie","","Brunnhilde","","w","7","",8,10,1982,0,0,0,0,0,0],"P00204":["Hulk","","Banner","","m","7","",17,12,1960,0,0,0,8,10,1979],"P00205":["Steve","","Rogers","","w","1","",8,10,1952,0,0,0,0,0,0],"P00206":["Clint","","Barton","","w","6","",9,10,1987,0,0,0,0,0,0],"P00207":["Bucky","","Barnes","","m","6","",9,10,1983,0,0,0,0,0,0],"P00208":["Sam","","Wilson","","m","1","",9,10,1980,0,0,0,0,0,0],"P00209":["Wanda","","Maximoff","","m","7","",11,10,1949,0,0,0,0,0,0],"P00210":["Vision","Ixchel Guzmán","Android","","w","5","",12,10,2023,0,0,0,0,0,0],"P00211":["T'Challa","","Panther","","w","6","",12,10,1960,0,0,0,0,0,0],"P00212":["Shuri","","Princess","","w","6","",13,10,2021,0,0,0,0,0,0],"P00213":["Okoye","","General","","m","3","",14,10,1990,0,0,0,0,0,0],"P00214":["M'Baku","","Lord","","m","6","(Julia \u0026 Bruno)",15,10,2021,0,0,0,0,0,0],"P00215":["Erik","","Killmonger","","w","1","",15,10,1979,0,0,0,0,0,0],"P00216":["Peter","","Quill","","w","3","",15,10,1962,0,0,0,0,0,0],"P00217":["Gamora","","Zen-Whoberi","","w","6","",16,10,1984,0,0,0,0,0,0],"P00218":["Drax","","Destroyer","Roos","w","3","",17,10,1985,0,0,0,0,0,0],"P00219":["Rocket","","Raccoon","","m","7","",17,10,1978,0,0,0,0,0,0],"P00220":["Groot","Melina","Tree","","w","3","Tochter von Pirmin\u0026Lea",18,10,2024,0,0,0,0,0,0],"P00221":["Nebula","","Assassin","","w","1","",18,10,1984,0,0,0,0,0,0],"P00222":["Yondu","","Udonta","","w","7","",19,10,1986,0,0,0,0,0,0],"P00223":["Mantis","","Insectoid","","m","4","",19,10,0,0,0,0,0,0,0],"P00224":["Pepper","","Potts","","w","6","",22,10,1985,0,0,0,0,0,0],"P00225":["Rhodey","","Rhodes","","m","2","",23,10,1991,0,0,0,0,0,0],"P00226":["Happy","","Hogan","","m","4","",24,10,1993,0,0,0,0,0,0],"P00227":["Nick","Zeppi","Fury","","m","6","",24,10,1990,0,0,0,0,0,0],"P00228":["Maria","","Hill","","m","7","",20,2,1973,0,0,0,25,10,1994],"P00229":["Phil","","Coulson","","m","7","",25,10,1987,0,0,0,0,0,0],"P00230":["Carol","","Danvers","","m","7","",26,1,0,0,0,0,0,0,0],"P00231":["Monica","","Rambeau","","m","7","",11,5,1975,0,0,0,0,0,0],"P00232":["Talos","","Skrull","","m","1","",27,10,1985,0,0,0,0,0,0],"P00233":["Goose","","Flerken","","w","2","",28,10,1984,0,0,0,0,0,0],"P00234":["Stephen","","Strange","Ineichen","w","3","",28,10,1966,0,0,0,0,0,0],"P00235":["Wong","","Sorcerer","","w","7","",1,11,1979,0,0,0,0,0,0],"P00236":["Christine","Walter","Palmer","","m","7","",1,11,1947,0,0,0,0,0,0],"P00237":["Baron","","Mordo","","m","3","",2,11,1956,0,0,0,0,0,0],"P00238":["Ancient","","One","","m","2","",5,11,1984,0,0,0,0,0,0],"P00239":["Dom","","Toretto","","m","7","",9,11,1960,0,0,0,0,0,0],"P00240":["Letty","Mathilda","Ortiz","","w","3","",10,11,2019,0,0,0,0,0,0],"P00241":["Brian","","O'Conner","","m","7","",10,11,1972,0,0,0,0,0,0],"P00242":["Mia","","Toretto","","m","7","NZ",10,11,0,0,0,0,0,0,0],"P00243":["Roman","","Pearce","","m","7","",11,11,1967,0,0,0,0,0,0],"P00244":["Tej","","Parker","","w","7","",12,11,1964,0,0,0,0,0,0],"P00245":["Luke","","Hobbs","","m","3","",15,11,1987,0,0,0,0,0,0],"P00246":["Deckard","","Shaw","","w","6","",15,11,1986,0,0,0,0,0,0],"P00247":["Hattie","","Shaw","","m","7","",15,11,0,0,0,0,0,0,0],"P00248":["Cipher","","Hacker","","w","1","",17,11,1984,0,0,0,0,0,0],"P00249":["John","","Wick","","m","1","",17,11,1984,0,0,0,0,0,0],"P00250":["Winston","","Manager","","w","7","",5,12,1950,18,11,2020,0,0,0],"P00251":["Charon","","Concierge","","m","2","",18,11,1992,0,0,0,0,0,0],"P00252":["Bowery","","King","","m","2","",18,11,1972,0,0,0,0,0,0],"P00253":["Aurelio","","Mechanic","","m","1","",19,11,1984,0,0,0,0,0,0],"P00254":["Santino","","D'Antonio","","m","2","",19,11,1983,0,0,0,0,0,0],"P00255":["Cassian","","Assassin","","m","2","",20,11,1955,0,0,0,0,0,0],"P00256":["Ares","","Mute","","w","7","",21,11,1995,0,0,0,0,0,0],"P00257":["Ethan","","Hunt","","w","2","Bern",21,11,1951,0,0,0,0,0,0],"P00258":["Luther","","Stickell","","m","4","",21,11,0,0,0,0,0,0,0],"P00259":["Benji","","Dunn","","w","1","",22,11,1984,0,0,0,0,0,0],"P00260":["Ilsa","","Faust","","m","7","Basel",22,11,1978,0,0,0,0,0,0],"P00261":["Alan","","Hunley","","m","6","",23,11,1988,0,0,0,0,0,0],"P00262":["August","","Walker","","m","5","",23,11,1978,0,0,0,0,0,0],"P00263":["Solomon","","Lane","","m","2","",23,11,1971,0,0,0,0,0,0],"P00264":["Maximus","","Decimus","","w","6","",25,11,1968,0,0,0,0,0,0],"P00265":["Commodus","","Emperor","","w","2","",25,11,1959,0,0,0,0,0,0],"P00266":["Lucilla","","Princess","","m","7","",27,11,1965,0,0,0,0,0,0],"P00267":["Proximo","","Trainer","","w","7","",28,11,1964,0,0,0,0,0,0],"P00268":["Juba","","Gladiator","","w","6","",29,11,1984,0,0,0,0,0,0],"P00269":["Gracchus","Sofia","Senator","","w","3","",30,11,2022,0,0,0,0,0,0],"P00270":["Forrest","","Gump","","w","3","",30,11,1983,0,0,0,0,0,0],"P00271":["Jenny","","Curran","","w","7","",30,11,1974,0,0,0,0,0,0],"P00272":["Bubba","","Blue","","m","3","",1,12,1985,0,0,0,0,0,0],"P00273":["Lieutenant","","Dan okre","","w","7","",2,12,1970,0,0,0,0,0,0],"P00274":["Lieutenant","","Dan","","m","3","",2,12,1958,0,0,0,0,0,0],"P00275":["Andy","","Dufresne","","w","2","",2,12,0,0,0,0,0,0,0],"P00276":["Red","","Redding","","m","3","",3,12,1986,0,0,0,0,0,0],"P00277":["Ellis","","Boyd","","m","2","",3,12,1976,0,0,0,0,0,0],"P00278":["Warden","","Norton","Hodel","w","3","",4,12,1982,0,0,0,0,0,0],"P00279":["Tommy","","Williams","","m","7","",5,12,1959,0,0,0,0,0,0],"P00280":["Bogs","","Diamond","","m","7","Basel",5,12,1953,0,0,0,0,0,0],"P00281":["Randle","Lia","McMurphy","","w","6","",8,12,2023,0,0,0,0,0,0],"P00282":["Nurse","","Ratched","","m","4","",8,12,1981,0,0,0,0,0,0],"P00283":["Billy","","Bibbitt","","w","7","",8,12,1956,0,0,0,0,0,0],"P00284":["Chief","","Bromden","","w","7","",9,12,1990,0,0,0,13,4,2012],"P00285":["Harding","","Dale","","m","1","",9,12,1960,0,0,0,0,0,0],"P00286":["Rose","","Titanic","","w","1","",10,12,1986,0,0,0,0,0,0],"P00287":["Jack","","Dawson","","m","1","",10,12,1980,0,0,0,0,0,0],"P00288":["Cal","","Hockley","","m","2","",12,12,1986,0,0,0,0,0,0],"P00289":["Molly","","Brown","","w","3","",13,12,2017,0,0,0,0,0,0],"P00290":["Fabrizio","","Friend","","m","7","",13,12,1977,0,0,0,0,0,0],"P00291":["Spicer","","Lovejoy","","w","7","",13,12,1956,0,0,0,0,0,0],"P00292":["Edward","","Scissorhands","","m","7","",14,12,1961,0,0,0,0,0,0],"P00293":["Kim","","Boggs","","m","3","",15,12,1957,6,3,2025,0,0,0],"P00294":["Peg","","Boggs","","m","3","",16,12,1993,0,0,0,0,0,0],"P00295":["Jim","","Boyfriend","","w","1","",16,12,1985,0,0,0,0,0,0],"P00296":["Joyce","","Monroe","","m","3","",17,12,2019,0,0,0,0,0,0],"P00297":["Esmeralda","","Neighbor","","w","3","",19,12,1960,0,0,0,0,0,0],"P00298":["V","","Fawkes","","w","5","",20,12,1989,0,0,0,0,0,0],"P00299":["Evey","","Hammond","","m","1","",20,12,1984,0,0,0,0,0,0],"P00300":["Finch","","Inspector","","m","7","",20,12,1973,0,0,0,0,0,0],"P00301":["Creedy","","Leader","","m","6","",0,0,0,0,0,0,0,0,0],"P00302":["Delia","","Surridge","","w","2","",21,12,1939,0,0,0,0,0,0],"P00303":["Dominic","","Stone","","m","4","",22,12,1978,0,0,0,0,0,0],"P00304":["Tyler","","Durden","","m","7","",23,12,1971,0,0,0,0,0,0],"P00305":["Marla","","Singer","","w","6","",24,12,1971,0,0,0,0,0,0],"P00306":["Robert","","Paulson","","w","3","",26,12,1993,0,0,0,0,0,0],"P00307":["Angel","","Face","","w","6","",26,12,1983,0,0,0,0,0,0],"P00308":["Narrator","","Fighter","","w","6","(aufladbar)",26,12,1974,0,0,0,0,0,0],"P00309":["Thelma","","Dickinson","","w","7","",27,12,0,0,0,0,7,5,0],"P00310":["Louise","","Sawyer","","m","4","",31,12,1970,0,0,0,0,0,0],"P00311":["Hal","","Slocumb","","m","3","",2,1,1987,0,0,0,0,0,0],"P00312":["Jimmy","","Harbor","","w","1","",2,1,1982,0,0,0,0,0,0],"P00313":["Darryl","","Dickinson","König","w","7","",2,1,1965,0,0,0,0,0,0],"P00314":["Max","","Mad","","m","7","",3,1,1982,0,0,0,0,0,0],"P00315":["Furiosa","","Imperator","","w","7","",3,1,1981,0,0,0,0,0,0],"P00316":["Nux","","War","","m","7","",5,1,1968,0,0,0,0,0,0],"P00317":["Immortan","","Joe","","m","1","",6,1,1966,0,0,0,0,0,0],"P00318":["Rictus","","Erectus","","m","7","",6,1,1957,0,0,0,0,0,0],"P00319":["Toast","","Knowing","","m","4","",6,1,0,0,0,0,0,0,0],"P00320":["Capable","","Red","","m","2","",7,1,1955,0,0,0,0,0,0],"P00321":["Ethan","Mathilda","Anderton","","w","3","",8,1,2021,0,0,0,0,0,0],"P00322":["Agatha","","Precog","","w","3","",10,1,2000,0,0,0,0,0,0],"P00323":["Lamar","","Burgess","","m","4","",10,1,1993,0,0,0,0,0,0],"P00324":["John","","Anderton","","m","2","",10,1,1980,0,0,0,0,0,0],"P00325":["Lara","","Clarke","","m","5","",10,1,1956,0,0,0,0,0,0],"P00326":["Danny","","Witwer","","m","1","",13,1,1987,0,0,0,0,0,0],"P00327":["Jad","","Technician","","m","1","",14,1,1980,0,0,0,0,0,0],"P00328":["Domino","","Harvey","","m","4","",14,1,1978,0,0,0,0,0,0],"P00329":["Marge","","Gunderson","","w","1","",14,1,1964,0,0,0,0,0,0],"P00330":["Jerry","","Lundegaard","","w","7","",14,1,1946,0,0,0,0,0,0],"P00331":["Carl","","Showalter","","m","3","",15,1,2001,0,0,0,0,0,0],"P00332":["Gaear","","Grimsrud","","w","6","",15,1,1983,0,0,0,0,0,0],"P00333":["Norm","","Gunderson","Roos","w","3","",15,1,1969,0,0,0,0,0,0],"P00334":["Llewelyn","","Moss","","m","1","",16,1,1984,0,0,0,0,0,0],"P00335":["Anton","","Chigurh","","w","1","",16,1,1984,0,0,0,0,0,0],"P00336":["Carson","","Wells","","w","6","",17,1,2022,0,0,0,0,0,0],"P00337":["Ed","","Crane","","m","1","",17,1,1986,0,0,0,0,0,0],"P00338":["Wendell","","Bell","Ineichen","w","3","",17,1,1959,0,0,0,0,0,0],"P00339":["Holly","","Golightly","","m","8","",17,1,1942,3,6,2016,0,0,0],"P00340":["Paul","","Varjak","","w","1","",18,1,1965,0,0,0,0,0,0],"P00341":["Doc","","Golightly","Roos","w","5","",18,1,1960,0,0,0,0,0,0],"P00342":["OJ","","Berman","","m","7","",21,1,2011,0,0,0,0,0,0],"P00343":["Rusty","","Tipton","","m","1","",21,1,1989,0,0,0,0,0,0],"P00344":["Mag","","Wildwood","","m","6","",21,1,1985,0,0,0,0,0,0],"P00345":["Amadeus","","Mozart","","w","6","",22,1,1979,0,0,0,0,0,0],"P00346":["Constanze","","Mozart","","m","2","",22,1,1978,0,0,0,0,0,0],"P00347":["Salieri","","Antonio","","m","1","",23,1,1984,0,0,0,0,0,0],"P00348":["Emperor","","Joseph","","m","7","",23,1,1974,0,0,0,0,0,0],"P00349":["Katerina","","Cavalieri","","m","7","",23,1,0,0,0,0,0,0,0],"P00350":["Stan","","Mozart","","m","3","",24,1,2011,0,0,0,0,0,0],"P00351":["E.T.","","Extraterrestrial","","m","6","",24,1,1989,0,0,0,0,0,0],"P00352":["Elliott","","Boy","Roos","w","3","",26,1,1962,0,0,0,0,0,0],"P00353":["Gertie","","Sister","","m","2","",19,2,1989,0,0,0,27,1,2013],"P00354":["Michael","","Brother","","w","7","",27,1,0,0,0,0,0,0,0],"P00355":["Mary","","Mother","","m","3","",29,1,2020,0,0,0,0,0,0],"P00356":["Keys","","Agent","","m","1","",29,1,1985,0,0,0,0,0,0],"P00357":["Ripley","","Hicks","","w","1","",31,1,1985,0,0,0,0,0,0],"P00358":["Newt","","Girl","","m","7","",31,1,0,0,0,0,0,0,0],"P00359":["Bishop","","Android","","w","7","",3,2,0,0,0,0,0,0,0],"P00360":["Burke","","Carter","","m","7","",4,2,1964,0,0,0,0,0,0],"P00361":["Vasquez","","Soldier","","w","2","",4,2,1960,0,0,0,0,0,0],"P00362":["Gorman","","Lieutenant","","m","1","",6,2,1984,0,0,0,0,0,0],"P00363":["Marty","","McFly","","m","7","",6,2,0,0,0,0,0,0,0],"P00364":["Doc","","Brown","","m","6","",7,2,2016,0,0,0,0,0,0],"P00365":["Lorraine","","Baines","","m","7","",7,2,1997,0,0,0,0,0,0],"P00366":["George","","McFly","","m","1","",7,2,1985,0,0,0,0,0,0],"P00367":["Biff","","Tannen","","m","7","",8,2,1964,0,0,0,0,0,0],"P00368":["Marty","","Junior","","w","7","",8,2,1961,0,0,0,0,0,0],"P00369":["Jame","","Gumb","","m","7","disciple",18,5,1985,0,0,0,10,2,2006],"P00370":["Jack","","Crawford","","m","7","",11,2,1965,0,0,0,0,0,0],"P00371":["Ardelia","","Mapp","","m","5","",12,2,1987,0,0,0,0,0,0],"P00372":["Catherine","","Martin","","w","5","",13,2,1987,0,0,0,0,0,0],"P00373":["Frederick","","Chilton","","m","3","",13,2,1971,0,0,0,0,0,0],"P00374":["Ellis","","Redding","","m","1","",15,2,1984,0,0,0,0,0,0],"P00375":["Brooks","","Hatlen","","m","3","",15,2,1984,0,0,0,0,0,0],"P00376":["Sarah","","Connor","","w","3","",15,2,1960,0,0,0,0,0,0],"P00377":["John","","Connor","","m","7","",15,2,1960,0,0,0,0,0,0],"P00378":["Kyle","","Reese","","w","1","",16,2,1983,0,0,0,0,0,0],"P00379":["Terminator","","T-800","","m","4","",17,2,1987,0,0,0,0,0,0],"P00380":["Miles","","Dyson","","m","7","",17,2,1967,0,0,0,0,0,0],"P00381":["T-1000","","Terminator","","w","7","",18,2,1980,0,0,0,0,0,0],"P00382":["Morpheus","","Leader","","m","7","",19,2,1960,0,0,0,0,0,0],"P00383":["Trinity","","Hacker","","w","7","",19,2,1958,0,0,0,0,0,0],"P00384":["Agent","","Smith","","m","3","",20,2,1966,0,0,0,0,0,0],"P00385":["Oracle","","Seer","","w","1","",20,2,1944,0,0,0,0,0,0],"P00386":["Cypher","","Traitor","","m","3","",21,2,2018,0,0,0,0,0,0],"P00387":["Mouse","","Programmer","","m","2","",22,2,1977,0,0,0,0,0,0],"P00388":["Simba","","Lion","","m","1","",26,2,1983,0,0,0,0,0,0],"P00389":["Mufasa","","King","","w","7","",27,2,1959,0,0,0,0,0,0],"P00390":["Scar","","Villain","","w","1","",29,2,1984,0,0,0,0,0,0],"P00391":["Nala","","Queen","","w","1","",2,3,1984,0,0,0,0,0,0],"P00392":["Timon","","Meerkat","","m","3","",3,3,1997,0,0,0,0,0,0],"P00393":["Pumbaa","","Warthog","","w","1","",3,3,1960,0,0,0,0,0,0],"P00394":["Zazu","","Hornbill","","w","7","",4,3,1942,0,0,0,0,0,0],"P00395":["Rafiki","","Baboon","","w","3","",5,3,1996,0,0,0,0,0,0],"P00396":["Woody","","Toy","Roos","w","3","",5,3,1967,0,0,0,0,0,0],"P00397":["Buzz","","Lightyear","","m","1","",7,3,1986,0,0,0,0,0,0],"P00398":["Jessie","","Cowgirl","","w","1","",7,3,1984,0,0,0,0,0,0],"P00399":["Rex","","Dinosaur","","w","8","",8,3,1990,0,0,0,0,0,0],"P00400":["Hamm","","Pig","","w","1","",8,3,1959,0,0,0,0,0,0],"P00401":["Slinky","","Dog","","m","2","",9,3,1955,0,0,0,0,0,0],"P00402":["Bo","","Peep","","w","4","",10,3,1973,0,0,0,0,0,0],"P00403":["Wheezy","","Penguin","","w","5","",10,3,1959,0,0,0,0,0,0],"P00404":["Shrek","","Ogre","","m","6","(Sina)",11,3,1992,0,0,0,0,0,0],"P00405":["Fiona","","Princess","","m","3","",11,3,1987,0,0,0,0,0,0],"P00406":["Donkey","","Sidekick","","m","1","",11,3,1986,0,0,0,0,0,0],"P00407":["Puss","","Boots","","m","1","",13,3,1983,0,0,0,0,0,0],"P00408":["Farquaad","Christopher","Lord","","m","7","",4,6,1972,0,0,0,14,3,2000],"P00409":["Gingerbread","","Man","","m","7","",14,3,1982,0,0,0,0,0,0],"P00410":["Pinocchio","","Puppet","","m","8","",14,3,1879,18,4,1955,0,0,0],"P00411":["Dragon","","Guard","","m","7","",16,3,1978,0,0,0,0,0,0],"P00412":["Po","","Panda","","w","7","",16,3,1976,0,0,0,0,0,0],"P00413":["Tigress","","Tiger","","m","7","",17,3,1979,0,0,0,0,0,0],"P00414":["Mantis","","Insect","","m","3","",17,3,1962,0,0,0,0,0,0],"P00415":["Viper","","Snake","Ineichen","w","3","",17,3,1960,0,0,0,0,0,0],"P00416":["Crane","","Bird","","m","5","",18,3,1954,0,0,0,0,0,0],"P00417":["Monkey","","Fighter","","w","7","",18,3,1952,0,0,0,0,0,0],"P00418":["Oogway","","Turtle","","m","7","",19,3,1976,0,0,0,0,0,0],"P00419":["Tai","","Lung","","w","3","",19,3,1956,0,0,0,0,0,0],"P00420":["Aang","","Avatar","","w","4","",21,3,1986,0,0,0,0,0,0],"P00421":["Katara","","Waterbender","","m","7","",21,3,1981,0,0,0,0,0,0],"P00422":["Sokka","","Warrior","","m","2","",22,3,1979,0,0,0,0,0,0],"P00423":["Toph","Paul","Beifong","","m","2","",24,3,1987,0,0,0,0,0,0],"P00424":["Zuko","","Prince","","m","3","",25,3,1990,0,0,0,0,0,0],"P00425":["Iroh","","Uncle","","w","8","",25,3,1967,0,0,0,0,0,0],"P00426":["Azula","","Princess","","w","7","",25,3,0,0,0,0,0,0,0],"P00427":["Appa","","Bison","","m","7","",25,3,0,0,0,0,0,0,0],"P00428":["Momo","","Lemur","","w","2","SH",26,3,1960,0,0,0,0,0,0],"P00429":["Hiccup","","Haddock","","m","3","",27,3,1996,0,0,0,0,0,0],"P00430":["Toothless","","Dragon","","m","3","",27,3,1985,0,0,0,0,0,0],"P00431":["Astrid","Martinez","Hofferson","","m","3","",28,3,2017,0,0,0,0,0,0],"P00432":["Stoick","","Vast","","m","1","",28,3,1984,0,0,0,0,0,0],"P00433":["Gobber","","Smith","","w","8","",29,3,1993,0,0,0,0,0,0],"P00434":["Fishlegs","","Ingerman","","m","7","",29,3,1984,0,0,0,0,0,0],"P00435":["Snotlout","","Jorgenson","","m","7","",30,3,0,0,0,0,0,0,0],"P00437":["Ruffnut","","Thorston","","m","4","",31,3,1977,0,0,0,0,0,0],"P00438":["Tuffnut","","Thorston","","m","2","",31,3,1973,0,0,0,0,0,0],"P00439":["Valka","","Mother","","w","1","",31,3,1967,0,0,0,0,0,0],"P00440":["Drago","","Bludvist","","m","3","",3,4,1992,0,0,0,0,0,0],"P00441":["Spock","","Vulcan","","m","3","",4,4,1955,0,0,0,0,0,0],"P00442":["James","","Kirk","","m","3","",5,4,2004,0,0,0,0,0,0],"P00443":["Leonard","","McCoy","","w","7","NY",6,4,0,0,0,0,0,0,0],"P00444":["Nyota","","Uhura","","m","1","",7,4,1965,0,0,0,0,0,0],"P00445":["Hikaru","","Sulu","","m","8","",7,4,1920,0,0,0,0,0,0],"P00446":["Pavel","","Chekov","","m","3","",8,4,1963,0,0,0,0,0,0],"P00447":["Montgomery","","Scott","","w","1","",9,4,1985,0,0,0,0,0,0],"P00448":["Khan","","Singh","","m","7","",9,4,1950,0,0,0,0,0,0],"P00449":["Carol","","Marcus","","m","3","",11,4,1994,0,0,0,0,0,0],"P00450":["Bones","","McCoy","","w","1","",12,4,1989,0,0,0,0,0,0],"P00451":["Sam","","Gamgee","","w","1","",12,4,1983,0,0,0,0,0,0],"P00452":["Neville","","Longbottom","","w","7","",12,4,1961,0,0,0,0,0,0],"P00453":["McGonagall","","Minerva","","m","3","",13,4,1998,0,0,0,0,0,0],"P00454":["Moody","","Alastor","","w","6","",13,4,1995,0,0,0,0,0,0],"P00455":["Dobby","","Elf","","m","7","",13,4,0,0,0,0,0,0,0],"P00456":["Kreacher","","Elf","","m","1","",14,4,1963,0,0,0,0,0,0],"P00457":["Hedwig","","Owl","","m","7","",14,4,1961,0,0,0,0,0,0],"P00458":["Fawkes","Ganapati","Phoenix","","m","5","",20,9,2021,0,0,0,0,0,0],"P00459":["Effie","","Trinket","","w","8","",15,4,2001,0,0,0,0,0,0],"P00460":["Cinna","","Stylist","","w","7","",16,4,1972,0,0,0,0,0,0],"P00461":["President","","Snow","","w","7","",16,4,1971,0,0,0,0,0,0],"P00462":["Coin","","Alma","","m","6","",17,4,2020,0,0,0,0,0,0],"P00463":["Finnick","","Odair","","w","6","",17,4,1986,0,0,0,0,0,0],"P00465":["Johanna","","Mason","","m","1","",18,4,1981,0,0,0,0,0,0],"P00466":["Beetee","","Tech","","m","3","",19,4,1963,0,0,0,0,0,0],"P00467":["Wiress","","Tech","","m","7","",19,4,1963,0,0,0,0,0,0],"P00468":["Mags","","Mentor","","w","3","",21,4,2000,0,0,0,0,0,0],"P00469":["Cato","","Victor","","w","7","",21,4,1963,0,0,0,0,0,0],"P00470":["Clove","","Fighter","","w","1","",21,4,0,0,0,0,0,0,0],"P00471":["Rue","","Ally","","m","1","",22,4,1984,0,0,0,0,0,0],"P00472":["Thresh","","Strong","","w","1","",22,4,1959,0,0,0,0,0,0],"P00473":["Foxface","","Runner","","w","1","",24,4,1987,0,0,0,0,0,0],"P00474":["Marvel","","Tribute","","w","1","",24,4,1984,0,0,0,0,0,0],"P00475":["Glimmer","","Tribute","","m","1","",24,4,1964,0,0,0,0,0,0],"P00476":["Jane","","Bennet","","w","4","",25,4,1989,0,0,0,0,0,0],"P00477":["Bingley","","Charles","","w","7","",25,4,1963,0,0,0,0,0,0],"P00478":["Lydia","","Wickham","","w","7","",27,4,1971,0,0,0,0,0,0],"P00479":["Wickham","","George","","w","6","",29,4,1987,0,0,0,0,0,0],"P00480":["Charlotte","","Lucas","","m","1","",29,4,1980,0,0,0,0,0,0],"P00481":["Collins","","William","","m","1","",30,4,1984,0,0,0,0,0,0],"P00482":["Lady","","Catherine","","m","6","",1,5,1987,0,0,0,0,0,0],"P00483":["Georgiana","","Darcy","","m","1","",1,5,1957,0,0,0,0,0,0],"P00484":["Fantine","","Mother","","w","7","",1,5,1937,0,0,0,0,0,0],"P00485":["Marius","","Pontmercy","","w","1","",3,5,1986,0,0,0,0,0,0],"P00486":["Enjolras","","Leader","","w","1","",3,5,1984,0,0,0,0,0,0],"P00487":["Gavroche","","Street","","m","7","",3,5,1984,0,0,0,0,0,0],"P00490":["Thenardier","","Thief","","m","6","",6,5,0,0,0,0,0,0,0],"P00491":["Eponine","","Thenardier","","m","7","",0,0,0,0,0,0,7,5,0],"P00492":["Azelma","","Thenardier","","m","1","",8,5,1984,0,0,0,0,0,0],"P00493":["O'Brien","","Inner","","w","7","",8,5,1962,0,0,0,0,0,0],"P00494":["Charrington","","Shop","","m","2","",9,5,1973,0,0,0,0,0,0],"P00495":["Syme","","Scholar","","m","6","",10,5,1983,0,0,0,0,0,0],"P00496":["Parsons","","Neighbor","","m","4","",10,5,1980,0,0,0,0,0,0],"P00497":["Jem","","Finch","","m","7","(Prague)",10,5,1971,0,0,0,0,0,0],"P00498":["Boo","","Radley","","m","3","",10,5,1957,0,0,0,0,0,0],"P00499":["Calpurnia","","Housekeeper","","m","1","",11,5,1984,0,0,0,0,0,0],"P00500":["Dill","","Harris","","w","1","",12,5,1984,0,0,0,0,0,0],"P00501":["Tom","","Robinson","","m","7","",12,5,1962,0,0,0,0,0,0],"P00502":["Mayella","","Ewell","","w","4","",13,5,2020,0,0,0,0,0,0],"P00503":["Bob","","Ewell","","w","6","",13,5,1987,0,0,0,0,0,0],"P00504":["Heck","","Tate","","m","7","",13,5,1973,0,0,0,0,0,0],"P00505":["Pearl","","Child","","m","7","NY",13,5,0,0,0,0,0,0,0],"P00506":["Chillingworth","","Roger","","m","7","",14,5,1952,0,0,0,0,0,0],"P00507":["Joe","","Gargery","","m","3","",15,5,2020,0,0,0,0,0,0],"P00508":["Estella","","Havisham","","m","3","",17,5,1984,0,0,0,0,0,0],"P00509":["Miss","","Havisham","","m","7","",17,5,1965,0,0,0,0,0,0],"P00510":["Jaggers","","Lawyer","","m","8","Pope",18,5,1920,0,0,0,0,0,0],"P00511":["Wemmick","","Clerk","","m","3","",19,5,1996,0,0,0,0,0,0],"P00512":["Herbert","","Pocket","","m","6","",20,5,2020,0,0,0,0,0,0],"P00513":["Magwitch","","Convict","","m","7","",20,5,2012,0,0,0,0,0,0],"P00514":["Compeyson","","Criminal","","m","6","",20,5,1986,0,0,0,0,0,0],"P00515":["Biddy","","Teacher","","m","1","",20,5,1983,0,0,0,0,0,0],"P00516":["Jacob","","Marley","","m","1","",20,5,1981,0,0,0,0,0,0],"P00517":["Fezziwig","","Employer","","w","3","",20,5,1965,0,0,0,0,0,0],"P00518":["Belle","","Love","","w","7","",21,5,1985,0,0,0,0,0,0],"P00519":["Fred","","Nephew","","m","4","",21,5,1971,0,0,0,0,0,0],"P00520":["Christmas","Matteo","Past","","m","6","(Tabea)",23,5,2025,0,0,0,0,0,0],"P00521":["Christmas","","Present","","m","7","",23,5,1968,0,0,0,0,0,0],"P00522":["Christmas","","Yet","","m","7","",23,5,1965,0,0,0,0,0,0],"P00523":["Nancy","","Ally","","w","6","",24,5,2022,0,0,0,0,0,0],"P00524":["Bill","","Sikes","Roos","w","3","",24,5,1990,0,0,0,0,0,0],"P00525":["Dodger","","Artful","","w","1","",24,5,1984,0,0,0,0,0,0],"P00526":["Monks","","Enemy","","m","7","",24,5,1969,0,0,0,0,0,0],"P00527":["Rose","","Maylie","","m","7","",24,5,1964,0,0,0,0,0,0],"P00528":["Brownlow","","Benefactor","","m","7","",25,5,1974,0,0,0,0,0,0],"P00529":["Bumble","","Beadle","","m","7","",25,5,1974,0,0,0,0,0,0],"P00530":["Sowerberry","","Undertaker","","m","1","",26,5,1969,0,0,0,0,0,0],"P00531":["Aladdin","","Streetrat","","w","2","",26,5,1966,0,0,0,0,0,0],"P00532":["Jasmine","","Princess","","m","7","",26,5,0,0,0,0,0,0,0],"P00533":["Genie","","Lamp","","w","6","",28,5,1986,0,0,0,0,0,0],"P00534":["Jafar","","Vizier","","w","8","",29,5,1992,0,0,0,0,0,0],"P00535":["Iago","","Parrot","","m","2","",29,5,0,0,0,0,0,0,0],"P00536":["Abu","","Monkey","","m","3","",31,5,1985,0,0,0,0,0,0],"P00537":["Sultan","","Agrabah","","m","1","",1,6,1978,0,0,0,0,0,0],"P00538":["Carpet","","Magic","","m","1","",2,6,1984,0,0,0,0,0,0],"P00539":["Nemo","","Fish","","m","1","",3,6,1984,0,0,0,0,0,0],"P00540":["Marlin","","Father","","m","1","",4,6,1975,0,0,0,0,0,0],"P00541":["Dory","","Blue","","m","2","",4,6,1968,0,0,0,0,0,0],"P00542":["Gill","","Moorish","","w","8","",19,9,2001,0,0,0,0,0,0],"P00543":["Bloat","","Puffer","","w","6","",19,4,2025,0,0,0,0,0,0],"P00544":["Peach","","Starfish","","m","3","sen.",9,9,1946,0,0,0,0,0,0],"P00546":["Gurgle","","Royal","","w","3","",16,6,2025,0,0,0,0,0,0],"P00547":["Bubbles","","Yellow","","w","6","",0,0,0,0,0,0,0,0,0],"P00548":["Deb","","Flo","","w","3","",0,0,0,0,0,0,0,0,0],"P00549":["Jacques","","Shrimp","","w","6","",0,0,0,0,0,0,0,0,0],"P00550":["Nigel","","Pelican","","m","1","",0,0,0,0,0,0,0,0,0],"P00551":["Crush","","Turtle","","m","3","",0,0,0,0,0,0,0,0,0],"P00552":["Squirt","","Son","","m","3","",0,0,0,0,0,0,0,0,0],"P00553":["Merida","","Archer","","m","3","",0,0,0,0,0,0,0,0,0],"P00554":["Elinor","","Queen","","m","3","",0,0,0,0,0,0,0,0,0],"P00555":["Fergus","Mathea","King","","w","3","",26,12,2021,0,0,0,0,0,0],"P00556":["Mor'du","","Bear","","w","3","",21,1,2014,0,0,0,0,0,0],"P00557":["Angus","","Horse","","m","3","",16,9,2021,0,0,0,0,0,0],"P00558":["Will","","Young","","w","3","",0,0,0,0,0,0,0,0,0],"P00559":["Maudie","","Servant","","m","3","",0,0,0,0,0,0,0,0,0],"P00560":["Hamish","","Triplet","","w","3","",26,2,2024,0,0,0,0,0,0],"P00561":["Hubert","","Triplet","","w","3","",28,11,2024,0,0,0,0,0,0],"P00562":["Harris","","Triplet","","w","3","",0,0,0,0,0,0,0,0,0],"P00563":["WALL-E","","Robot","","w","3","",0,0,0,0,0,0,0,0,0],"P00564":["EVE","","Probe","","w","3","",8,8,2021,0,0,0,0,0,0],"P00565":["Captain","","McCrea","","m","3","",5,5,2021,0,0,0,0,0,0],"P00566":["AUTO","","Pilot","","m","3","",6,6,2022,0,0,0,0,0,0],"P00567":["MO","Kuni","Cleaner","","m","3","",0,0,0,0,0,0,0,0,0],"P00568":["John","","Passenger","","m","3","",27,11,2019,0,0,0,0,0,0],"P00569":["Mary","","Passenger","","m","3","",18,10,2021,0,0,0,0,0,0],"P00570":["Miguel","","Rivera","","w","3","",0,0,0,0,0,0,0,0,0],"P00571":["Hector","","Skeleton","","m","3","",29,12,2021,0,0,0,0,0,0],"P00572":["Ernesto","","Cruz","","m","3","",29,12,2021,0,0,0,0,0,0],"P00573":["Imelda","","Matriarch","","m","3","",17,3,2010,0,0,0,0,0,0],"P00574":["Mama","","Coco","","m","3","",16,7,2012,0,0,0,0,0,0],"P00575":["Abuelita","","Grandma","","w","3","",2,8,2017,0,0,0,0,0,0],"P00576":["Dante","","Dog","","w","3","",0,0,0,0,0,0,0,0,0],"P00577":["Pepita","","Alebrije","","w","3","",5,2,2020,0,0,0,0,0,0],"P00578":["Olaf","","Snowman","","w","3","",8,11,2022,0,0,0,0,0,0],"P00579":["Anna","","Arendelle","","w","3","",0,0,0,0,0,0,0,0,0],"P00580":["Elsa","","Queen","","w","3","",0,0,0,0,0,0,0,0,0],"P00581":["Kristoff","","Bjorgman","","m","3","",0,0,0,0,0,0,0,0,0],"P00582":["Sven","","Reindeer","","w","3","",9,4,2011,0,0,0,0,0,0],"P00583":["Hans","","Prince","","w","3","",0,0,0,0,0,0,0,0,0],"P00584":["Duke","","Weselton","","m","3","",0,0,0,0,0,0,0,0,0],"P00585":["Marshmallow","","Guard","","w","3","",10,1,2021,0,0,0,0,0,0],"P00586":["Oaken","","Trader","","w","3","",10,10,2023,0,0,0,0,0,0],"P00587":["Rapunzel","Joseph","Princess","","m","8","",29,8,1958,25,6,2009,0,0,0]};
+var _REL={"R00001":["P00008","ist Mutter von","P00502",""],"R00002":["P00051","ist Mutter von","P00296",""],"R00003":["P00061","ist Mutter von","P00458",""],"R00004":["P00063","ist Vater von","P00122",""],"R00005":["P00063","ist Vater von","P00298",""],"R00006":["P00063","ist Vater von","P00371",""],"R00007":["P00095","ist Mutter von","P00513",""],"R00008":["P00102","ist Mutter von","P00056",""],"R00009":["P00102","ist Mutter von","P00063",""],"R00010":["P00102","ist Mutter von","P00234",""],"R00011":["P00102","ist Mutter von","P00237",""],"R00012":["P00102","ist Mutter von","P00293",""],"R00013":["P00102","ist Mutter von","P00415",""],"R00014":["P00102","ist Mutter von","P00416",""],"R00015":["P00102","ist Mutter von","P00441",""],"R00016":["P00102","ist Mutter von","P00446",""],"R00017":["P00105","ist Mutter von","P00342",""],"R00018":["P00122","ist Vater von","P00458",""],"R00019":["P00163","ist Mutter von","P00098",""],"R00020":["P00200","ist Vater von","P00056",""],"R00021":["P00200","ist Vater von","P00063",""],"R00022":["P00200","ist Vater von","P00234",""],"R00023":["P00200","ist Vater von","P00237",""],"R00024":["P00200","ist Vater von","P00293",""],"R00025":["P00200","ist Vater von","P00415",""],"R00026":["P00200","ist Vater von","P00416",""],"R00027":["P00200","ist Vater von","P00441",""],"R00028":["P00200","ist Vater von","P00446",""],"R00029":["P00207","ist Vater von","P00202",""],"R00030":["P00213","ist Vater von","P00546",""],"R00031":["P00227","ist Vater von","P00364",""],"R00032":["P00268","ist Mutter von","P00202",""],"R00033":["P00306","ist Mutter von","P00269",""],"R00034":["P00306","ist Mutter von","P00321",""],"R00035":["P00341","ist Mutter von","P00122",""],"R00036":["P00341","ist Mutter von","P00298",""],"R00037":["P00341","ist Mutter von","P00371",""],"R00038":["P00404","ist Vater von","P00523",""],"R00039":["P00454","ist Mutter von","P00523",""],"R00040":["P00503","ist Mutter von","P00183",""],"R00041":["P00547","ist Mutter von","P00543",""],"R00042":["P00548","ist Mutter von","P00546",""],"R00043":["P00549","ist Mutter von","P00364",""],"R00044":["P00341","ist verheiratet mit","P00063","J00001"],"R00045":["P00395","ist verheiratet mit","P00152","J00003"],"R00046":["P00403","ist verheiratet mit","P00325","J00004"],"R00047":["P00071","ist verheiratet mit","P00301","J00005"],"R00048":["P00341","ist verheiratet mit","P00063","J00002"],"R00049":["P00008","ist verheiratet mit","P00550","J00006"],"R00050":["P00108","ist verheiratet mit","P00402","J00007"],"R00051":["P00550","ist Vater von","P00502",""],"R00052":["P00551","ist Vater von","P00296",""],"R00053":["P00517","ist Mutter von","P00005",""],"R00054":["P00446","ist Vater von","P00005",""],"R00055":["P00216","ist Mutter von","P00012",""],"R00056":["P00237","ist Vater von","P00012",""],"R00057":["P00517","ist Mutter von","P00026",""],"R00058":["P00446","ist Vater von","P00026",""],"R00059":["P00419","ist Mutter von","P00027",""],"R00060":["P00441","ist Vater von","P00027",""],"R00061":["P00524","ist Mutter von","P00029",""],"R00062":["P00554","ist Vater von","P00029",""],"R00063":["P00297","ist Mutter von","P00034",""],"R00064":["P00274","ist Vater von","P00034",""],"R00065":["P00297","ist Mutter von","P00035",""],"R00066":["P00274","ist Vater von","P00035",""],"R00067":["P00415","ist Mutter von","P00039",""],"R00068":["P00101","ist Vater von","P00039",""],"R00069":["P00376","ist Mutter von","P00051",""],"R00070":["P00498","ist Vater von","P00051",""],"R00071":["P00403","ist Mutter von","P00061",""],"R00072":["P00325","ist Vater von","P00061",""],"R00073":["P00517","ist Mutter von","P00070",""],"R00074":["P00446","ist Vater von","P00070",""],"R00075":["P00278","ist Mutter von","P00074",""],"R00076":["P00508","ist Vater von","P00074",""],"R00077":["P00570","ist Mutter von","P00077",""],"R00078":["P00405","ist Vater von","P00077",""],"R00079":["P00524","ist Mutter von","P00080",""],"R00080":["P00554","ist Vater von","P00080",""],"R00081":["P00170","ist Mutter von","P00081",""],"R00082":["P00293","ist Vater von","P00081",""],"R00083":["P00352","ist Mutter von","P00082",""],"R00084":["P00131","ist Vater von","P00082",""],"R00085":["P00332","ist Mutter von","P00093",""],"R00086":["P00482","ist Vater von","P00093",""],"R00087":["P00282","ist Vater von","P00094",""],"R00088":["P00558","ist Mutter von","P00104",""],"R00089":["P00245","ist Vater von","P00104",""],"R00090":["P00112","ist Vater von","P00107",""],"R00091":["P00333","ist Mutter von","P00120",""],"R00092":["P00384","ist Vater von","P00120",""],"R00093":["P00291","ist Mutter von","P00125",""],"R00094":["P00199","ist Vater von","P00125",""],"R00095":["P00282","ist Vater von","P00128",""],"R00096":["P00338","ist Mutter von","P00145",""],"R00097":["P00544","ist Vater von","P00145",""],"R00098":["P00376","ist Mutter von","P00153",""],"R00099":["P00498","ist Vater von","P00153",""],"R00100":["P00153","ist Mutter von","P00155",""],"R00101":["P00552","ist Vater von","P00155",""],"R00102":["P00338","ist Mutter von","P00160",""],"R00103":["P00544","ist Vater von","P00160",""],"R00104":["P00216","ist Mutter von","P00177",""],"R00105":["P00237","ist Vater von","P00177",""],"R00106":["P00216","ist Mutter von","P00188",""],"R00107":["P00237","ist Vater von","P00188",""],"R00108":["P00298","ist Mutter von","P00210",""],"R00109":["P00262","ist Vater von","P00210",""],"R00110":["P00050","ist Mutter von","P00212",""],"R00111":["P00415","ist Mutter von","P00213",""],"R00112":["P00101","ist Vater von","P00213",""],"R00113":["P00376","ist Mutter von","P00218",""],"R00114":["P00498","ist Vater von","P00218",""],"R00115":["P00449","ist Vater von","P00220",""],"R00116":["P00218","ist Mutter von","P00240",""],"R00117":["P00553","ist Vater von","P00240",""],"R00118":["P00297","ist Mutter von","P00245",""],"R00119":["P00274","ist Vater von","P00245",""],"R00120":["P00333","ist Mutter von","P00246",""],"R00121":["P00403","ist Mutter von","P00261",""],"R00122":["P00325","ist Vater von","P00261",""],"R00123":["P00419","ist Mutter von","P00270",""],"R00124":["P00441","ist Vater von","P00270",""],"R00125":["P00338","ist Mutter von","P00272",""],"R00126":["P00544","ist Vater von","P00272",""],"R00127":["P00193","ist Mutter von","P00274",""],"R00128":["P00216","ist Mutter von","P00276",""],"R00129":["P00237","ist Vater von","P00276",""],"R00130":["P00338","ist Mutter von","P00278",""],"R00131":["P00544","ist Vater von","P00278",""],"R00132":["P00479","ist Mutter von","P00281",""],"R00133":["P00051","ist Mutter von","P00289",""],"R00134":["P00551","ist Vater von","P00289",""],"R00135":["P00170","ist Mutter von","P00294",""],"R00136":["P00293","ist Vater von","P00294",""],"R00137":["P00396","ist Mutter von","P00306",""],"R00138":["P00475","ist Vater von","P00306",""],"R00139":["P00352","ist Mutter von","P00311",""],"R00140":["P00131","ist Vater von","P00311",""],"R00141":["P00396","ist Mutter von","P00322",""],"R00142":["P00475","ist Vater von","P00322",""],"R00143":["P00333","ist Mutter von","P00331",""],"R00144":["P00384","ist Vater von","P00331",""],"R00145":["P00193","ist Mutter von","P00333",""],"R00146":["P00479","ist Mutter von","P00336",""],"R00147":["P00102","ist Mutter von","P00338",""],"R00148":["P00200","ist Vater von","P00338",""],"R00149":["P00193","ist Mutter von","P00341",""],"R00150":["P00400","ist Mutter von","P00344",""],"R00151":["P00153","ist Mutter von","P00350",""],"R00152":["P00552","ist Vater von","P00350",""],"R00153":["P00193","ist Mutter von","P00352",""],"R00154":["P00558","ist Mutter von","P00355",""],"R00155":["P00245","ist Vater von","P00355",""],"R00156":["P00193","ist Mutter von","P00373",""],"R00157":["P00415","ist Mutter von","P00375",""],"R00158":["P00101","ist Vater von","P00375",""],"R00159":["P00153","ist Mutter von","P00386",""],"R00160":["P00552","ist Mutter von","P00386",""],"R00161":["P00333","ist Mutter von","P00392",""],"R00162":["P00384","ist Vater von","P00392",""],"R00163":["P00396","ist Mutter von","P00395",""],"R00164":["P00475","ist Vater von","P00395",""],"R00165":["P00193","ist Mutter von","P00396",""],"R00166":["P00419","ist Mutter von","P00405",""],"R00167":["P00441","ist Vater von","P00405",""],"R00168":["P00427","ist Vater von","P00412",""],"R00169":["P00352","ist Mutter von","P00424",""],"R00170":["P00131","ist Vater von","P00424",""],"R00171":["P00338","ist Mutter von","P00429",""],"R00172":["P00544","ist Vater von","P00429",""],"R00173":["P00352","ist Mutter von","P00430",""],"R00174":["P00131","ist Vater von","P00430",""],"R00175":["P00218","ist Mutter von","P00431",""],"R00176":["P00553","ist Vater von","P00431",""],"R00177":["P00415","ist Mutter von","P00440",""],"R00178":["P00101","ist Vater von","P00440",""],"R00179":["P00278","ist Mutter von","P00442",""],"R00180":["P00508","ist Vater von","P00442",""],"R00181":["P00216","ist Mutter von","P00449",""],"R00182":["P00237","ist Vater von","P00449",""],"R00183":["P00414","ist Vater von","P00453",""],"R00184":["P00071","ist Mutter von","P00462",""],"R00185":["P00301","ist Vater von","P00462",""],"R00186":["P00414","ist Vater von","P00468",""],"R00187":["P00193","ist Mutter von","P00498",""],"R00188":["P00330","ist Mutter von","P00504",""],"R00189":["P00034","ist Mutter von","P00507",""],"R00190":["P00559","ist Vater von","P00507",""],"R00191":["P00278","ist Mutter von","P00582",""],"R00192":["P00508","ist Vater von","P00582",""],"R00193":["P00414","ist Vater von","P00511",""],"R00194":["P00376","ist Mutter von","P00524",""],"R00195":["P00498","ist Vater von","P00524",""],"R00196":["P00498","ist verheiratet mit","P00376",""],"R00197":["P00554","ist verheiratet mit","P00524",""],"R00198":["P00552","ist verheiratet mit","P00153",""],"R00199":["P00553","ist verheiratet mit","P00218",""],"R00200":["P00551","ist verheiratet mit","P00051",""],"R00201":["P00218","ist Mutter von","P00555",""],"R00202":["P00553","ist Vater von","P00555",""],"R00203":["P00153","ist Mutter von","P00556",""],"R00204":["P00552","ist Vater von","P00556",""],"R00205":["P00051","ist Mutter von","P00557",""],"R00206":["P00551","ist Vater von","P00557",""],"R00207":["P00297","ist verheiratet mit","P00274",""],"R00208":["P00558","ist verheiratet mit","P00245",""],"R00209":["P00559","ist verheiratet mit","P00034",""],"R00210":["P00034","ist Mutter von","P00560",""],"R00211":["P00559","ist Vater von","P00560",""],"R00212":["P00298","ist verheiratet mit","P00262",""],"R00213":["P00061","ist Partner von","P00122",""],"R00214":["P00371","ist Partner von","P00372",""],"R00215":["P00131","ist verheiratet mit","P00352",""],"R00216":["P00562","ist Mutter von","P00561",""],"R00217":["P00562","ist Mutter von","P00564",""],"R00218":["P00430","ist Vater von","P00561",""],"R00219":["P00430","ist Vater von","P00564",""],"R00220":["P00430","ist verheiratet mit","P00562",""],"R00221":["P00311","ist Vater von","P00565",""],"R00222":["P00311","ist Vater von","P00566",""],"R00223":["P00563","ist Mutter von","P00565",""],"R00224":["P00563","ist Mutter von","P00566",""],"R00225":["P00563","ist verheiratet mit","P00311",""],"R00226":["P00396","ist verheiratet mit","P00475",""],"R00227":["P00396","ist geschieden von","P00475",""],"R00228":["P00567","ist Vater von","P00321",""],"R00229":["P00567","ist verheiratet mit","P00306",""],"R00230":["P00567","ist Vater von","P00269",""],"R00231":["P00395","ist Mutter von","P00568",""],"R00232":["P00395","ist Mutter von","P00569",""],"R00233":["P00152","ist Vater von","P00568",""],"R00234":["P00152","ist Vater von","P00569",""],"R00235":["P00333","ist verheiratet mit","P00384",""],"R00236":["P00419","ist verheiratet mit","P00441",""],"R00237":["P00570","ist verheiratet mit","P00405",""],"R00238":["P00570","ist Mutter von","P00571",""],"R00239":["P00570","ist Mutter von","P00572",""],"R00240":["P00405","ist Vater von","P00571",""],"R00241":["P00405","ist Vater von","P00572",""],"R00242":["P00216","ist verheiratet mit","P00237",""],"R00243":["P00012","ist verheiratet mit","P00536",""],"R00244":["P00012","ist Mutter von","P00573",""],"R00245":["P00012","ist Mutter von","P00574",""],"R00246":["P00012","ist Mutter von","P00575",""],"R00247":["P00536","ist Vater von","P00573",""],"R00248":["P00536","ist Vater von","P00574",""],"R00249":["P00536","ist Vater von","P00575",""],"R00250":["P00576","ist Mutter von","P00220",""],"R00251":["P00579","ist Mutter von","P00577",""],"R00252":["P00579","ist Mutter von","P00578",""],"R00253":["P00188","ist Vater von","P00577",""],"R00254":["P00188","ist Vater von","P00578",""],"R00255":["P00170","ist verheiratet mit","P00293",""],"R00256":["P00081","ist Mutter von","P00580",""],"R00257":["P00581","ist Vater von","P00580",""],"R00258":["P00508","ist verheiratet mit","P00278",""],"R00259":["P00101","ist verheiratet mit","P00415",""],"R00260":["P00213","ist verheiratet mit","P00548",""],"R00261":["P00583","ist verheiratet mit","P00375",""],"R00262":["P00517","ist verheiratet mit","P00446",""],"R00263":["P00070","ist verheiratet mit","P00584",""],"R00264":["P00584","ist Vater von","P00585",""],"R00265":["P00584","ist Vater von","P00586",""],"R00266":["P00070","ist Mutter von","P00585",""],"R00267":["P00070","ist Mutter von","P00586",""],"R00268":["P00466","ist verheiratet mit","P00234",""]};
+var _JUB={"J00001":["R00044","Hochzeit",6,6,1984,"zivil"],"J00002":["R00048","Hochzeit",6,5,1983,""],"J00003":["R00045","Hochzeit",5,9,2020,""],"J00004":["R00046","Hochzeit",7,9,1985,""],"J00005":["R00047","Hochzeit",21,12,2015,""],"J00006":["R00049","Hochzeit",11,6,2016,""],"J00007":["R00050","Hochzeit",12,8,2000,""]};
+var _ND={"N00001":["P00011",5,7,2010,""],"N00002":["P00061",11,7,0,""],"N00003":["P00091",27,2,2009,""],"N00004":["P00122",18,10,0,""],"N00005":["P00140",27,8,1999,""],"N00006":["P00161",17,4,0,""],"N00007":["P00166",14,9,2002,""],"N00008":["P00230",27,10,2002,""],"N00009":["P00231",27,10,2002,""],"N00010":["P00458",14,4,0,""],"N00011":["P00458",6,5,0,""]};
+
+window.onerror=function(msg,src,line){var d=document.getElementById("err");if(d){d.style.display="block";d.textContent="ERR: "+msg+" L"+line;}return false;};
+
+var GRP={1:{l:"past",c:"var(--g1)"},2:{l:"not quite from past",c:"var(--g2)"},3:{l:"bigger family",c:"var(--g3)"},4:{l:"colleagues from work",c:"var(--g4)"},5:{l:"ultimate family members",c:"var(--g5)"},6:{l:"friends",c:"var(--g6)"},7:{l:"disciples",c:"var(--g7)"},8:{l:"VIPs",c:"var(--g8)"}};
+var MF=["Januar","Februar","M\u00e4rz","April","Mai","Juni","Juli","August","September","Oktober","November","Dezember"];
+var MS=["Jan","Feb","M\u00e4r","Apr","Mai","Jun","Jul","Aug","Sep","Okt","Nov","Dez"];
+var RT=["ist Mutter von","ist Vater von","ist verheiratet mit","ist Partner von","ist geschieden von"];
+var RNDS=[10,15,20,25,30,40,50,60,70,75,80,90,100];
+var TODAY=new Date(),CY=TODAY.getFullYear();
+var DB={ind:{},rel:{},jub:{},nd:{}},CUR=null,SRCH=false,FILTER_NAH=true;
+
+function saveDB(){try{localStorage.setItem("jub7",JSON.stringify(DB));}catch(e){}}
+function loadDB(){try{var r=localStorage.getItem("jub7");if(r){var d=JSON.parse(r);if(d&&d.ind&&Object.keys(d.ind).length>0){DB=d;return true;}}}catch(e){}return false;}
+function seedDB(){
+  var k,r;
+  for(k in _IND){r=_IND[k];DB.ind[k]={id:k,vn:r[0],mit:r[1],nn:r[2],maed:r[3],gesl:r[4],grp:r[5],nts:r[6],gt:r[7],gm:r[8],gj:r[9],tt:r[10],tm:r[11],tj:r[12],st:r[13],sm:r[14],sj:r[15]};}
+  for(k in _REL){r=_REL[k];DB.rel[k]={id:k,i1:r[0],type:r[1],i2:r[2],jid:r[3]};}
+  for(k in _JUB){r=_JUB[k];DB.jub[k]={id:k,rid:r[0],type:r[1],t:r[2],m:r[3],j:r[4],desc:r[5]};}
+  for(k in _ND){r=_ND[k];DB.nd[k]={id:k,pid:r[0],t:r[1],m:r[2],j:r[3],desc:r[4]};}
+  saveDB();
+}
+function nextId(p,o){var mx=0,k,n;for(k in o){n=parseInt(k.slice(p.length));if(!isNaN(n)&&n>mx)mx=n;}return p+String(mx+1).padStart(5,"0");}
+function pname(p){return p?[p.vn,p.nn].filter(Boolean).join(" "):"?";}
+function gcol(g){return GRP[g]?GRP[g].c:"var(--t3)";}
+function isRnd(y){return y&&RNDS.indexOf(y%100===0?100:y)>=0;}
+function esc(s){return(s||"").toString().replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/>/g,"&gt;").replace(/"/g,"&quot;");}
+function gv(id){var e=document.getElementById(id);return e?e.value:"";}
+function gi(id){var e=document.getElementById(id);return e?parseInt(e.value)||0:0;}
+
+function diffDays(m,d){
+  if(!m||!d)return null;
+  var tm=new Date(TODAY.getFullYear(),TODAY.getMonth(),TODAY.getDate()),i,yr,o,df;
+  for(i=0;i<3;i++){yr=CY-1+i;o=new Date(yr,m-1,d);df=Math.round((o-tm)/86400000);if(df>=-14&&df<=30)return{df:df,oy:o.getFullYear()};}
+  return null;
+}
+
+function buildEvs(){
+  var evs=[],k,p,j,rel,p1,p2,fp,n,rk,dead,r2;
+  function add(type,p,t,m,j,icon){
+    if(!t||!m)return;
+    var r2=diffDays(m,t);if(!r2)return;
+    var yrs=j?r2.oy-j:null;
+    evs.push({type:type,p:p,df:r2.df,yrs:yrs,icon:icon});
+  }
+  for(k in DB.ind){
+    p=DB.ind[k];dead=p.tt&&p.tm;
+    if(p.gt&&p.gm)add("Geburtstag",p,p.gt,p.gm,p.gj,dead?"&#128337;":"&#127874;");
+    if(p.tt&&p.tm)add("Todestag",p,p.tt,p.tm,p.tj,"&#128337;");
+    if(p.st&&p.sm)add("SpiritGeburtstag",p,p.st,p.sm,p.sj,"&#127775;");
+  }
+  for(k in DB.jub){
+    j=DB.jub[k];rel=null;
+    for(rk in DB.rel){if(DB.rel[rk].jid===j.id){rel=DB.rel[rk];break;}}
+    if(!rel)continue;
+    p1=DB.ind[rel.i1];p2=DB.ind[rel.i2];if(!p1||!p2)continue;
+    fp={id:j.id,vn:p1.vn+" & "+p2.vn,nn:"",grp:p1.grp};
+    add("Hochzeit",fp,j.t,j.m,j.j,"&#128141;");
+  }
+  for(k in DB.nd){n=DB.nd[k];p=DB.ind[n.pid];if(!p)continue;add("Namenstag",p,n.t,n.m,n.j,"&#127800;");}
+  evs.sort(function(a,b){return a.df-b.df;});
+  return evs;
+}
+
+function showScr(id,back){
+  var ids=["s0","s1","s2"],i,el;
+  for(i=0;i<ids.length;i++){
+    el=document.getElementById(ids[i]);if(!el)continue;
+    if(ids[i]===id){el.className="scr";}
+    else if(!back){el.className="scr bk";(function(e){setTimeout(function(){if(e.className==="scr bk")e.className="scr off";},320);})(el);}
+    else{el.className="scr off";}
+  }
+}
+
+function h(tag,cls,content){return"<"+tag+(cls?' class="'+cls+'"':"")+">"+content+"</"+tag+">";}
+
+function toggleFilter(){
+  FILTER_NAH=!FILTER_NAH;
+  var btn=document.getElementById("filterbtn");
+  if(FILTER_NAH){btn.innerHTML="&#128101;";btn.title="Nah (Gruppen 4\u20138)";btn.classList.add("active");}
+  else{btn.innerHTML="&#127760;";btn.title="Alle Gruppen";btn.classList.remove("active");}
+  renderTL();
+}
+
+function renderTL(){
+  var el=document.getElementById("mc");if(!el)return;
+  var evs=buildEvs();
+  if(FILTER_NAH){
+    evs=evs.filter(function(ev){return parseInt(ev.p.grp||0)>=4;});
+  }
+  if(!evs.length){el.innerHTML='<div class="empty"><div style="font-size:40px;margin-bottom:12px">&#128197;</div><div>Keine Jubil\u00e4en in diesem Zeitraum</div></div>';return;}
+  var byDay={},i,df,d,ds,relStr,isT,html="",ev,rnd,pid,cid,yr;
+  for(i=0;i<evs.length;i++){df=evs[i].df;if(!byDay[df])byDay[df]=[];byDay[df].push(evs[i]);}
+  var days=[],dk;for(dk in byDay)days.push(parseInt(dk));days.sort(function(a,b){return a-b;});
+  for(i=0;i<days.length;i++){
+    df=days[i];
+    d=new Date(TODAY.getFullYear(),TODAY.getMonth(),TODAY.getDate()+df);
+    ds=d.getDate()+". "+MF[d.getMonth()];
+    relStr=df<0?"vor "+Math.abs(df)+" Tag"+(Math.abs(df)!==1?"en":""):df===0?"Heute":df===1?"Morgen":"in "+df+" Tagen";
+    isT=(df===0);
+    html+='<div class="dg"'+(isT?' id="ta"':'')+'>'+
+      '<div class="dl'+(isT?" tod":"")+'"><span>'+ds+" &middot; "+relStr+'</span><span class="dll"></span></div>';
+    var dayEvs=byDay[df];
+    for(var j2=0;j2<dayEvs.length;j2++){
+      ev=dayEvs[j2];rnd=ev.yrs&&isRnd(ev.yrs);
+      pid=DB.ind[ev.p.id]?ev.p.id:null;cid=pid||ev.p.id;
+      html+='<div class="ec'+(isT?" tod":"")+(rnd?" rnd":"")+'" onclick="openDet(\''+cid+'\')">'+
+        '<div class="gd" style="background:'+gcol(ev.p.grp)+'"></div>'+
+        '<div class="eico">'+ev.icon+'</div>'+
+        '<div style="flex:1;min-width:0">'+
+          '<div class="en">'+esc(ev.p.vn+(ev.p.nn?" "+ev.p.nn:""))+'</div>'+
+          '<div class="es">'+ev.type+'</div>'+
+        '</div>'+
+        (ev.yrs?'<div class="eyr"><div class="ey'+(rnd?" rnd":"")+'">'+ev.yrs+'</div><div class="eyl">Jahre</div></div>':'')+
+        (rnd?'<span class="rstar">&#11088;</span>':'')+
+      '</div>';
+    }
+    html+='</div>';
+  }
+  el.innerHTML=html;
+  setTimeout(function(){
+    var mc=document.getElementById("mc");
+    // Find the last day-group with a negative df (past), scroll that to top
+    // so today/upcoming appears just below, not hidden behind header
+    var groups=mc.querySelectorAll(".dg");
+    var lastPastGroup=null;
+    var todayGroup=null;
+    for(var gi=0;gi<groups.length;gi++){
+      if(groups[gi].id==="ta"){todayGroup=groups[gi];break;}
+      lastPastGroup=groups[gi];
+    }
+    if(lastPastGroup){
+      mc.scrollTop=lastPastGroup.offsetTop;
+    } else if(todayGroup){
+      mc.scrollTop=todayGroup.offsetTop;
+    } else if(groups.length){
+      mc.scrollTop=groups[0].offsetTop;
+    }
+  },30);
+}
+
+function onSrch(q){
+  document.getElementById("srchclr").style.display=q?"block":"none";
+  if(!q.trim()){SRCH=false;renderTL();return;}
+  SRCH=true;
+  var el=document.getElementById("mc"),lq=q.toLowerCase(),m=[],k,p,evs2,html="";
+  for(k in DB.ind){p=DB.ind[k];if((p.vn+" "+p.nn+" "+p.maed+" "+p.mit).toLowerCase().indexOf(lq)>=0)m.push(p);}
+  m.sort(function(a,b){return pname(a).localeCompare(pname(b));});
+  if(!m.length){el.innerHTML='<div class="empty"><div style="font-size:40px;margin-bottom:12px">&#128269;</div><div>Niemanden gefunden</div></div>';return;}
+  for(var i=0;i<m.length;i++){
+    p=m[i];evs2=[];
+    if(p.gt)evs2.push("&#127874; "+p.gt+". "+MS[p.gm-1]+(p.gj?" "+p.gj:""));
+    if(p.tt)evs2.push("&#128337; "+p.tt+". "+MS[p.tm-1]+(p.tj?" "+p.tj:""));
+    if(p.st)evs2.push("&#127775; "+p.st+". "+MS[p.sm-1]+(p.sj?" "+p.sj:""));
+    html+='<div class="sp" onclick="openDet(\''+p.id+'\')">'+
+      '<div class="gd" style="background:'+gcol(p.grp)+'"></div>'+
+      '<div style="flex:1;min-width:0">'+
+        '<div class="spn">'+esc(pname(p))+(p.maed?' <span style="color:var(--t3);font-size:11px">(geb. '+esc(p.maed)+')</span>':'')+' </div>'+
+        '<div class="sps">'+(GRP[p.grp]?GRP[p.grp].l:"")+'</div>'+
+        '<div class="spe">'+evs2.join(" &middot; ")+'</div>'+
+      '</div><span style="color:var(--t3);font-size:18px">&#8250;</span></div>';
+  }
+  el.innerHTML=html;
+}
+function clrSrch(){document.getElementById("srch").value="";document.getElementById("srchclr").style.display="none";SRCH=false;renderTL();}
+
+function mOpts(sel){var h="<option value=\"\">\u2013</option>",i;for(i=0;i<MF.length;i++)h+="<option value=\""+(i+1)+"\""+(sel==i+1?" selected":"")+">"+MF[i]+"</option>";return h;}
+function gOpts(sel){var h="<option value=\"\">\u2013</option>",k;for(k in GRP)h+="<option value=\""+k+"\""+(sel==k?" selected":"")+">"+GRP[k].l+"</option>";return h;}
+function rTOpts(){
+  var p=DB.ind[CUR],gesl=p?p.gesl:"";
+  var types=["ist verheiratet mit","ist Partner von","ist geschieden von"];
+  if(gesl!=="m") types.unshift("ist Mutter von");
+  if(gesl!=="w") types.unshift("ist Vater von");
+  if(gesl==="") { types.unshift("ist Mutter von"); } // already added above if not m
+  // rebuild cleanly
+  var allowed=["ist verheiratet mit","ist Partner von","ist geschieden von"];
+  if(gesl==="m") allowed.unshift("ist Vater von");
+  else if(gesl==="w") allowed.unshift("ist Mutter von");
+  else { allowed.unshift("ist Mutter von"); allowed.unshift("ist Vater von"); }
+  var h="",i;for(i=0;i<allowed.length;i++)h+="<option value=\""+allowed[i]+"\">"+allowed[i]+"</option>";
+  return h;
+}
+function openDet(pid){
+  var p=DB.ind[pid];if(!p){showToast("Person nicht gefunden");return;}
+  CUR=pid;
+  document.getElementById("detTitle").textContent=pname(p);
+  document.getElementById("detb").innerHTML=detHTML(p);
+  showScr("s1");
+}
+
+function detHTML(p){
+  var rH="",nH="",k,r,oid,op,on,tl,ji;
+  for(k in DB.rel){
+    r=DB.rel[k];if(r.i1!==p.id&&r.i2!==p.id)continue;
+    // Show from i1's perspective with forward type, from i2's perspective with inverse label
+    if(r.i1===p.id){
+      // This person initiated the relation
+      oid=r.i2;op=DB.ind[oid];on=op?pname(op):oid;
+      tl=r.type;
+    } else {
+      // This person is the target - show inverse label
+      oid=r.i1;op=DB.ind[oid];on=op?pname(op):oid;
+      tl=invR(r.type,p.id);
+      // Skip "ist Elternteil von" - never show this
+      if(tl==="ist Elternteil von")continue;
+    }
+    ji=(r.jid&&DB.jub[r.jid])?" ("+DB.jub[r.jid].t+"."+DB.jub[r.jid].m+"."+DB.jub[r.jid].j+")":"";
+    rH+='<div class="ri"><div class="rit"><span class="rityp">'+tl+"</span> "+esc(on)+ji+'</div>'+
+        '<button class="xbtn" onclick="delRel(\''+r.id+'\')">&#10005;</button></div>';
+  }
+  for(k in DB.nd){
+    var nd=DB.nd[k];if(nd.pid!==p.id)continue;
+    nH+='<div class="ri"><div class="rit">&#127800; '+nd.t+". "+MF[nd.m-1]+(nd.j?" "+nd.j:"")+'</div>'+
+        '<button class="xbtn" onclick="delNd(\''+nd.id+'\')">&#10005;</button></div>';
+  }
+  var jSec='<div id="jSec" style="display:none;margin-bottom:8px">'+
+    '<div class="fl" style="margin-bottom:4px">Hochzeitsdatum</div>'+
+    '<div class="d3">'+
+      '<div><div class="fl">Tag</div><input class="fi" id="jT" type="number" min="1" max="31" placeholder="TT"></div>'+
+      '<div><div class="fl">Monat</div><select class="fsel" id="jM">'+mOpts("")+'</select></div>'+
+      '<div><div class="fl">Jahr</div><input class="fi" id="jJ" type="number" placeholder="JJJJ"></div>'+
+    '</div></div>';
+  return '<div class="sec"><div class="stl">Name</div>'+
+    '<div class="fr"><div class="fg"><div class="fl">Vorname</div><input class="fi" id="dVn" value="'+esc(p.vn)+'"></div>'+
+    '<div class="fg"><div class="fl">Nachname</div><input class="fi" id="dNn" value="'+esc(p.nn)+'"></div></div>'+
+    '<div class="fr"><div class="fg"><div class="fl">Mittelnamen</div><input class="fi" id="dMit" value="'+esc(p.mit)+'"></div>'+
+    '<div class="fg"><div class="fl">M\u00e4dchenname</div><input class="fi" id="dMaed" value="'+esc(p.maed)+'"></div></div>'+
+    '<div class="fr">'+
+      '<div class="fg"><div class="fl">Geschlecht</div><select class="fsel" id="dGesl"><option value="">\u2013</option><option value="m"'+(p.gesl==="m"?" selected":"")+'>m</option><option value="w"'+(p.gesl==="w"?" selected":"")+'>w</option></select></div>'+
+      '<div class="fg"><div class="fl">Gruppe</div><select class="fsel" id="dGrp">'+gOpts(p.grp)+'</select></div>'+
+    '</div>'+
+    '<div class="fl">Notizen</div><input class="fi" id="dNts" value="'+esc(p.nts||"")+'"></div>'+
+    '<div class="sec"><div class="stl">Geburtstag</div><div class="d3">'+
+      '<div><div class="fl">Tag</div><input class="fi" id="dGT" type="number" min="1" max="31" value="'+(p.gt||"")+'"></div>'+
+      '<div><div class="fl">Monat</div><select class="fsel" id="dGM">'+mOpts(p.gm)+'</select></div>'+
+      '<div><div class="fl">Jahr</div><input class="fi" id="dGJ" type="number" value="'+(p.gj||"")+'"></div>'+
+    '</div></div>'+
+    '<div class="sec"><div class="stl">Todestag</div><div class="d3">'+
+      '<div><div class="fl">Tag</div><input class="fi" id="dTT" type="number" min="1" max="31" value="'+(p.tt||"")+'"></div>'+
+      '<div><div class="fl">Monat</div><select class="fsel" id="dTM">'+mOpts(p.tm)+'</select></div>'+
+      '<div><div class="fl">Jahr</div><input class="fi" id="dTJ" type="number" value="'+(p.tj||"")+'"></div>'+
+    '</div></div>'+
+    '<div class="sec"><div class="stl">SpiritGeburtstag</div><div class="d3">'+
+      '<div><div class="fl">Tag</div><input class="fi" id="dST" type="number" min="1" max="31" value="'+(p.st||"")+'"></div>'+
+      '<div><div class="fl">Monat</div><select class="fsel" id="dSM">'+mOpts(p.sm)+'</select></div>'+
+      '<div><div class="fl">Jahr</div><input class="fi" id="dSJ" type="number" value="'+(p.sj||"")+'"></div>'+
+    '</div></div>'+
+    '<div class="sec"><div class="stl">Namenstage</div>'+
+    (nH||'<div style="color:var(--t3);font-size:13px;margin-bottom:8px">Keine Namenstage</div>')+
+    '<details><summary>+ Namenstag hinzuf\u00fcgen</summary><div class="addf">'+
+      '<div class="d3" style="margin-bottom:8px">'+
+        '<div><div class="fl">Tag</div><input class="fi" id="ndT" type="number" min="1" max="31" placeholder="TT"></div>'+
+        '<div><div class="fl">Monat</div><select class="fsel" id="ndM">'+mOpts("")+'</select></div>'+
+        '<div><div class="fl">Jahr</div><input class="fi" id="ndJ" type="number" placeholder="JJJJ"></div>'+
+      '</div><button class="btn btnp btnsm" onclick="addNd()">Hinzuf\u00fcgen</button>'+
+    '</div></details></div>'+
+    '<div class="sec"><div class="stl">Beziehungen</div>'+
+    (rH||'<div style="color:var(--t3);font-size:13px;margin-bottom:8px">Keine Beziehungen</div>')+
+    '<details><summary>+ Beziehung hinzuf\u00fcgen</summary><div class="addf">'+
+      '<div class="fg" style="margin-bottom:8px"><div class="fl">Typ</div><select class="fsel" id="relT" onchange="tglJ(this.value)">'+rTOpts()+'</select></div>'+
+      '<div class="fg" style="margin-bottom:8px"><div class="fl">Person</div>'+
+      '<div style="position:relative">'+
+        '<input class="fi" id="relSrch" placeholder="Name suchen\u2026" oninput="relSrchInput(this.value)" autocomplete="off">'+
+        '<input type="hidden" id="relP">'+
+        '<div id="relAc" style="display:none;position:absolute;left:0;right:0;top:100%;background:var(--s2);border:1px solid var(--b2);border-radius:8px;margin-top:2px;z-index:50;max-height:200px;overflow-y:auto"></div>'+
+      '</div></div>'+
+      jSec+
+      '<button class="btn btnp btnsm" onclick="addRel()">Hinzuf\u00fcgen</button>'+
+    '</div></details></div>';
+}
+
+function invR(type, childId){
+  if(type==="ist Mutter von"||type==="ist Vater von"){
+    var child=DB.ind[childId];
+    var g=child?child.gesl:"";
+    return g==="m"?"ist Sohn von":g==="w"?"ist Tochter von":"ist Kind von";
+  }
+  if(type==="ist Sohn von"||type==="ist Tochter von"||type==="ist Kind von") return "ist Elternteil von";
+  return type; // verheiratet, Partner, geschieden sind symmetrisch
+}
+function tglJ(v){var e=document.getElementById("jSec");if(e)e.style.display=v==="ist verheiratet mit"?"block":"none";}
+
+function saveDetail(){
+  var p=DB.ind[CUR];if(!p)return;
+  p.vn=gv("dVn").trim();p.nn=gv("dNn").trim();p.mit=gv("dMit").trim();p.maed=gv("dMaed").trim();
+  p.gesl=gv("dGesl");p.grp=gv("dGrp");p.nts=gv("dNts").trim();
+  p.gt=gi("dGT");p.gm=gi("dGM");p.gj=gi("dGJ");
+  p.tt=gi("dTT");p.tm=gi("dTM");p.tj=gi("dTJ");
+  p.st=gi("dST");p.sm=gi("dSM");p.sj=gi("dSJ");
+  saveDB();document.getElementById("detTitle").textContent=pname(p);showToast("Gespeichert");
+}
+function relSrchInput(q){
+  var ac=document.getElementById("relAc");
+  var hidden=document.getElementById("relP");
+  hidden.value=""; // clear selection when typing
+  if(!q.trim()){ac.style.display="none";return;}
+  var lq=q.toLowerCase(),results=[],k,p;
+  for(k in DB.ind){
+    p=DB.ind[k];
+    if(p.id===CUR)continue; // skip self
+    if((p.vn+" "+p.nn+" "+p.maed).toLowerCase().indexOf(lq)>=0)results.push(p);
+  }
+  results.sort(function(a,b){return pname(a).localeCompare(pname(b));});
+  results=results.slice(0,8);
+  if(!results.length){ac.style.display="none";return;}
+  var h="",i,p2;
+  for(i=0;i<results.length;i++){
+    p2=results[i];
+    h+='<div onclick="relSrchPick(\''+p2.id+'\',\''+esc(pname(p2))+'\')" style="padding:9px 12px;cursor:pointer;border-bottom:1px solid var(--bd);font-size:14px" onmousedown="event.preventDefault()">'+
+      '<span style="display:inline-block;width:8px;height:8px;border-radius:50%;background:'+gcol(p2.grp)+';margin-right:8px;vertical-align:middle"></span>'+
+      esc(pname(p2))+
+    '</div>';
+  }
+  ac.innerHTML=h;ac.style.display="block";
+}
+function relSrchPick(pid,name){
+  document.getElementById("relP").value=pid;
+  document.getElementById("relSrch").value=name;
+  document.getElementById("relAc").style.display="none";
+}
+
+function addRel(){
+  var type=gv("relT"),i2=gv("relP");if(!i2){showToast("Bitte Person w\u00e4hlen");return;}
+  if(i2===CUR){showToast("Person kann nicht mit sich selbst verbunden werden");return;}
+  if(!i2){showToast("Bitte Person aus der Liste w\u00e4hlen");return;}
+  var rid=nextId("R",DB.rel),jid="";
+  if(type==="ist verheiratet mit"){
+    var jt=gi("jT"),jm=gi("jM"),jj=gi("jJ");
+    if(jt&&jm){var j2=nextId("J",DB.jub);DB.jub[j2]={id:j2,rid:rid,type:"Hochzeit",t:jt,m:jm,j:jj,desc:""};jid=j2;}
+  }
+  DB.rel[rid]={id:rid,i1:CUR,type:type,i2:i2,jid:jid};
+  saveDB();document.getElementById("detb").innerHTML=detHTML(DB.ind[CUR]);showToast("Beziehung hinzugef\u00fcgt");
+}
+function delRel(rid){
+  var r=DB.rel[rid];
+  if(r&&r.jid)delete DB.jub[r.jid];
+  delete DB.rel[rid];
+  saveDB();
+  document.getElementById("detb").innerHTML=detHTML(DB.ind[CUR]);showToast("Entfernt");
+}
+function addNd(){
+  var t=gi("ndT"),m=gi("ndM"),j=gi("ndJ");if(!t||!m){showToast("Tag und Monat erforderlich");return;}
+  var nid=nextId("N",DB.nd);DB.nd[nid]={id:nid,pid:CUR,t:t,m:m,j:j,desc:""};
+  saveDB();document.getElementById("detb").innerHTML=detHTML(DB.ind[CUR]);showToast("Namenstag hinzugef\u00fcgt");
+}
+function delNd(nid){delete DB.nd[nid];saveDB();document.getElementById("detb").innerHTML=detHTML(DB.ind[CUR]);showToast("Entfernt");}
+function closeDetail(){showScr("s0",true);if(SRCH)onSrch(document.getElementById("srch").value);else renderTL();}
+function confirmDel(){
+  var p=DB.ind[CUR];
+  showOvl(pname(p)+" l\u00f6schen?","Alle Daten dieser Person werden entfernt.",function(){
+    var k,r;for(k in DB.rel){r=DB.rel[k];if(r.i1===CUR||r.i2===CUR){if(r.jid)delete DB.jub[r.jid];delete DB.rel[k];}}
+    for(k in DB.nd){if(DB.nd[k].pid===CUR)delete DB.nd[k];}
+    delete DB.ind[CUR];saveDB();closeDetail();showToast("Person gel\u00f6scht");
+  },"L\u00f6schen");
+}
+
+function openNew(){
+  var inputs=document.querySelectorAll("#s2 input"),sels=document.querySelectorAll("#s2 select"),i;
+  for(i=0;i<inputs.length;i++)inputs[i].value="";
+  for(i=0;i<sels.length;i++)sels[i].selectedIndex=0;
+  document.getElementById("dupwarn").style.display="none";
+  showScr("s2");
+}
+function closeNew(){showScr("s0",true);}
+function chkDup(){
+  var v=(document.getElementById("nVn").value||"").toLowerCase().trim();
+  var n=(document.getElementById("nNn").value||"").toLowerCase().trim();
+  if(!v&&!n){document.getElementById("dupwarn").style.display="none";return;}
+  var m=[],k,p;
+  for(k in DB.ind){p=DB.ind[k];if((v&&p.vn.toLowerCase().indexOf(v)>=0)||(n&&p.nn.toLowerCase().indexOf(n)>=0))m.push(p);}
+  m=m.slice(0,4);
+  var w=document.getElementById("dupwarn");
+  if(!m.length){w.style.display="none";return;}
+  w.style.display="block";
+  var h="",i;for(i=0;i<m.length;i++){p=m[i];h+='<div class="dupitem" onclick="closeNew();openDet(\''+p.id+'\')"><div class="gd" style="background:'+gcol(p.grp)+'"></div>'+esc(pname(p))+(p.gj?" ("+p.gj+")":"")+"</div>";}
+  document.getElementById("duplist").innerHTML=h;
+}
+function saveNew(){
+  var vn=gv("nVn").trim();if(!vn){showToast("Vorname erforderlich");return;}
+  var id=nextId("P",DB.ind);
+  DB.ind[id]={id:id,vn:vn,nn:gv("nNn").trim(),mit:gv("nMit").trim(),maed:gv("nMaed").trim(),
+    gesl:gv("nGesl"),grp:gv("nGrp"),nts:gv("nNot").trim(),
+    gt:gi("nGT"),gm:gi("nGM"),gj:gi("nGJ"),tt:0,tm:0,tj:0,st:0,sm:0,sj:0};
+  saveDB();CUR=id;
+  document.getElementById("detTitle").textContent=vn;
+  document.getElementById("detb").innerHTML=detHTML(DB.ind[id]);
+  showScr("s1");showToast("Person erstellt");
+}
+
+function openDrw(){
+  document.getElementById("drwcnt").textContent=Object.keys(DB.ind).length+" Personen";
+  document.getElementById("drwevs").textContent=Object.keys(DB.jub).length+" Hochzeiten, "+Object.keys(DB.nd).length+" Namenstage";
+  document.getElementById("drwovl").classList.add("on");
+}
+function closeDrw(){document.getElementById("drwovl").classList.remove("on");}
+function confirmReset(){
+  showOvl("Daten zur\u00fccksetzen?","Alle \u00c4nderungen gehen verloren.",function(){
+    localStorage.removeItem("jub7");DB={ind:{},rel:{},jub:{},nd:{}};seedDB();renderTL();showToast("Zur\u00fcckgesetzt");
+  },"Zur\u00fccksetzen");
+}
+
+function doImport(e){
+  var files=Array.from(e.target.files);
+  if(!files.length)return;
+  var newDB={ind:{},rel:{},jub:{},nd:{}};
+  var pending=files.length,errors=[];
+
+  function parseFile(f){
+    var nm=f.name.toLowerCase();
+    var rd=new FileReader();
+    rd.onload=function(ev){
+      var txt=ev.target.result.replace(/\r/g,"");
+      try{
+        var lines=txt.split("\n").filter(function(l){return l.trim()&&!l.match(/^(Indiv|Relat|Jubil|Names|Group)/i);});
+        if(nm.indexOf("individual")>=0){
+          lines.forEach(function(l){var p=l.split(";"),id=p[0];if(!id)return;newDB.ind[id]={id:id,vn:p[1]||"",mit:p[2]||"",nn:p[3]||"",maed:p[4]||"",gesl:p[5]||"",grp:p[6]||"",nts:p[7]||"",gt:+p[8]||0,gm:+p[9]||0,gj:+p[10]||0,tt:+p[11]||0,tm:+p[12]||0,tj:+p[13]||0,st:+p[14]||0,sm:+p[15]||0,sj:+p[16]||0};});
+        } else if(nm.indexOf("relation")>=0){
+          lines.forEach(function(l){var p=l.split(";");if(!p[0])return;newDB.rel[p[0]]={id:p[0],i1:p[1],type:p[2],i2:p[3],jid:p[4]||""};});
+        } else if(nm.indexOf("jubilee")>=0){
+          lines.forEach(function(l){var p=l.split(";");if(!p[0])return;newDB.jub[p[0]]={id:p[0],rid:p[1],type:p[2],t:+p[3]||0,m:+p[4]||0,j:+p[5]||0,desc:p[6]||""};});
+        } else if(nm.indexOf("nameday")>=0){
+          lines.forEach(function(l){var p=l.split(";");if(!p[0])return;newDB.nd[p[0]]={id:p[0],pid:p[1],t:+p[2]||0,m:+p[3]||0,j:+p[4]||0,desc:p[5]||""};});
+        }
+        // groups.csv: no action needed, groups are hardcoded
+      }catch(err){errors.push(f.name+": "+err.message);}
+      pending--;
+      if(pending===0)finishImport();
+    };
+    rd.readAsText(f);
+  }
+
+  function finishImport(){
+    if(errors.length){showToast("Fehler: "+errors[0]);return;}
+    if(Object.keys(newDB.ind).length===0){showToast("Keine Personen gefunden \u2014 Import abgebrochen");return;}
+    DB=newDB;
+    saveDB();
+    renderTL();
+    showToast("\u2713 "+Object.keys(DB.ind).length+" Personen importiert");
+  }
+
+  files.forEach(parseFile);
+  e.target.value="";
+}
+
+function doExport(){
+  var ih="IndivID;Vorname;Mittelnamen;Nachname;M\u00e4dchenname;Geschlecht;GroupID;Notizen;Geburtstag;Geburtsmonat;Geburtsjahr;Todestag;Todesmonat;Todesjahr;SpiritGeburtstag;SpiritGeburtsmonat;SpiritGeburtsjahr\n";
+  var ib=[],jh="JubileeID;RelationID;Ereignisart;Tag;Monat;Jahr;Beschreibung\n",jb=[],rh="RelationID;Indiv1ID;RelationType;Indiv2ID;JubileeID\n",rb=[],nh="NamenstagID;IndivID;Namenstag;Namensmonat;Namensjahr;Beschreibung\n",nb=[],gh="GroupID;GroupLabel\n",gb=[],k;
+  for(k in DB.ind){var p=DB.ind[k];ib.push([p.id,p.vn,p.mit,p.nn,p.maed,p.gesl,p.grp,p.nts||"",p.gt||"",p.gm||"",p.gj||"",p.tt||"",p.tm||"",p.tj||"",p.st||"",p.sm||"",p.sj||""].join(";"));}
+  for(k in DB.jub){var j=DB.jub[k];jb.push([j.id,j.rid,j.type,j.t||"",j.m||"",j.j||"",j.desc].join(";"));}
+  for(k in DB.rel){var r=DB.rel[k];rb.push([r.id,r.i1,r.type,r.i2,r.jid||""].join(";"));}
+  for(k in DB.nd){var nd=DB.nd[k];nb.push([nd.id,nd.pid,nd.t||"",nd.m||"",nd.j||"",nd.desc||""].join(";"));}
+  for(k in GRP)gb.push(k+";"+GRP[k].l);
+  var files=[["individuals.csv",ih+ib.join("\n")],["jubilees.csv",jh+jb.join("\n")],["relations.csv",rh+rb.join("\n")],["namedays.csv",nh+nb.join("\n")],["groups.csv",gh+gb.join("\n")]];
+  files.forEach(function(pair){var a=document.createElement("a");a.href=URL.createObjectURL(new Blob([pair[1]],{type:"text/csv;charset=utf-8"}));a.download=pair[0];a.click();URL.revokeObjectURL(a.href);});
+  showToast("5 CSVs exportiert");
+}
+
+function showOvl(t,s,ok,okL){
+  document.getElementById("ovlT").textContent=t;
+  document.getElementById("ovlS").textContent=s;
+  document.getElementById("ovlOk").textContent=okL||"OK";
+  document.getElementById("ovlOk").onclick=function(){closeOvl();ok();};
+  document.getElementById("ovl").classList.add("on");
+}
+function closeOvl(){document.getElementById("ovl").classList.remove("on");}
+
+var toastT;
+function showToast(msg){var e=document.getElementById("toast");e.textContent=msg;e.classList.add("on");clearTimeout(toastT);toastT=setTimeout(function(){e.classList.remove("on");},2300);}
+
+(function init(){
+  var go="<option value=\"\">\u2013</option>",mo="<option value=\"\">\u2013</option>",k,i;
+  for(k in GRP)go+="<option value=\""+k+"\">"+GRP[k].l+"</option>";
+  for(i=0;i<MF.length;i++)mo+="<option value=\""+(i+1)+"\">"+MF[i]+"</option>";
+  var eg=document.getElementById("nGrp");if(eg)eg.innerHTML=go;
+  var em=document.getElementById("nGM");if(em)em.innerHTML=mo;
+  if(!loadDB())seedDB();
+  renderTL();
+})();
+
+</script>
+<script>
+if("serviceWorker" in navigator){
+  window.addEventListener("load", function(){
+    navigator.serviceWorker.register("sw.js").then(function(reg){
+      console.log("SW registered");
+    }).catch(function(err){
+      console.log("SW error:", err);
+    });
+  });
+}
+</script>
+</body>
+</html>
