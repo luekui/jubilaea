@@ -181,6 +181,14 @@ details summary::-webkit-details-marker{display:none}
     </div>
   </div>
 </div>
+
+<div id="s3" class="scr off">
+  <div class="deth">
+    <button class="bkbtn" onclick="closeStamm()">&#8249; Zur&#252;ck</button>
+    <span class="dett">Stammbaum</span>
+  </div>
+  <div class="detb" id="stammBody"></div>
+</div>
 <div class="drwovl" id="drwovl" onclick="closeDrw()">
   <div class="drw" onclick="event.stopPropagation()">
     <div class="drwh"><span class="drwt">Jubilaea</span><button class="drwx" onclick="closeDrw()">&#10005;</button></div>
@@ -194,7 +202,7 @@ details summary::-webkit-details-marker{display:none}
       <div class="drwsl">Info</div>
       <div class="drwitem" style="cursor:default"><span class="drwic">&#128101;</span><div><div class="drwl" id="drwcnt">&#8211;</div><div class="drwsl2" id="drwevs">&#8211;</div></div></div>
     </div>
-    <div class="drwf" id="drwver">Jubilaea &#183; Version <span id="versionLabel">1.3</span></div>
+    <div class="drwf" id="drwver">Jubilaea &#183; Version <span id="versionLabel">1.4</span></div>
   </div>
 </div>
 <div class="ovl" id="ovl" onclick="closeOvl()">
@@ -224,7 +232,7 @@ var MS=["Jan","Feb","M\u00e4r","Apr","Mai","Jun","Jul","Aug","Sep","Okt","Nov","
 var RT=["ist Mutter von","ist Vater von","ist verheiratet mit","ist Partner von","ist geschieden von"];
 var RNDS=[10,15,20,25,30,40,50,60,70,75,80,90,100];
 var TODAY=new Date(),CY=TODAY.getFullYear();
-var APP_VERSION="1.3";
+var APP_VERSION="1.4";
 var DB={ind:{},rel:{},jub:{},nd:{}},CUR=null,SRCH=false,FILTER_NAH=true;
 
 function saveDB(){try{localStorage.setItem("jub7",JSON.stringify(DB));}catch(e){}}
@@ -765,10 +773,10 @@ function stammNodeHTML(pid, depth){
     if(p.gj) age=(today.getFullYear()-p.gj)+" J.";
   }
   var dead=p.tt&&p.tm?"&#128337; ":"";
-  var html='<div class="stnode'+(depth===0?" root":"")+(open?" open":"")+(kids.length===0?" leaf":"")+'" id="stn_'+pid+'"'+
-    ' onclick="stammClick(event,\''+pid+'\')"'+
-    ' oncontextmenu="stammLong(event,\''+pid+'\')"'+
-    ' ontouchstart="stammTouchStart(event,\''+pid+'\')"'+
+  var html='<div class="stnode'+(depth===0?" root":"")+(open?" open":"")+(kids.length===0?" leaf":"")+'" id="stn_'+pid+'" data-pid="'+pid+'"'+
+    ' onclick="stammClick(event)"'+
+    ' oncontextmenu="stammLong(event)"'+
+    ' ontouchstart="stammTouchStart(event)"'+
     ' ontouchend="stammTouchEnd(event)"'+
     '>'+
     '<div class="stname">'+
@@ -793,7 +801,8 @@ function stammNodeHTML(pid, depth){
 var _stammLongTimer=null;
 var _stammMoved=false;
 
-function stammTouchStart(e,pid){
+function stammTouchStart(e){
+  var pid=e.currentTarget.dataset.pid;
   _stammMoved=false;
   _stammLongTimer=setTimeout(function(){
     if(!_stammMoved){ stammLong(e,pid); }
@@ -803,7 +812,8 @@ function stammTouchEnd(e){
   clearTimeout(_stammLongTimer);
 }
 
-function stammClick(e,pid){
+function stammClick(e){
+  var pid=e.currentTarget.dataset.pid;
   // Only handle as click if not a long press
   clearTimeout(_stammLongTimer);
   if(_stammMoved)return;
@@ -818,31 +828,33 @@ function stammClick(e,pid){
   },50);
 }
 
-function stammLong(e,pid){
+function stammLong(e){
+  var pid=e.currentTarget?e.currentTarget.dataset.pid:e.target.closest('[data-pid]')&&e.target.closest('[data-pid]').dataset.pid;
   if(e&&e.preventDefault)e.preventDefault();
   clearTimeout(_stammLongTimer);
   openDet(pid);
 }
 
 function renderStamm(){
-  var roots=getRoots();
   var body=document.getElementById("stammBody");
   if(!body)return;
-  if(!roots.length){
-    body.innerHTML='<div class="empty"><div style="font-size:40px;margin-bottom:12px">&#127968;</div><div>Keine Eltern-Kind-Beziehungen gefunden</div></div>';
-    return;
+  try{
+    var roots=getRoots();
+    if(!roots.length){
+      body.innerHTML='<div class="empty"><div style="font-size:40px;margin-bottom:12px">&#127968;</div><div>Keine Eltern-Kind-Beziehungen gefunden</div></div>';
+      return;
+    }
+    var html='<div style="font-size:11px;color:var(--t3);padding:8px 0 14px">'+roots.length+' Stammbäume · Tippen = aufklappen · Halten = Details</div>';
+    for(var i=0;i<roots.length;i++){
+      html+=stammNodeHTML(roots[i],0);
+      if(i<roots.length-1)html+='<div style="height:10px"></div>';
+    }
+    body.innerHTML=html;
+    body.addEventListener("touchmove",function(){_stammMoved=true;},{passive:true});
+  }catch(err){
+    body.innerHTML='<div style="padding:20px;color:#e07070;font-size:13px">Fehler: '+err.message+'</div>';
   }
-  var html='<div style="font-size:11px;color:var(--t3);padding:8px 0 14px;letter-spacing:.06em;text-transform:uppercase">'+roots.length+' Stammb\u00e4ume &middot; Tippen = aufklappen &middot; Halten = Details</div>';
-  for(var i=0;i<roots.length;i++){
-    html+=stammNodeHTML(roots[i],0);
-    if(i<roots.length-1)html+='<div style="height:10px"></div>';
-  }
-  body.innerHTML=html;
-
-  // Add touchmove listener to detect scroll vs long press
-  body.addEventListener("touchmove",function(){_stammMoved=true;},{passive:true});
 }
-
 function openStamm(){
   STAMM_OPEN={};
   renderStamm();
@@ -866,7 +878,7 @@ function closeStamm(){
 <script>
 if("serviceWorker" in navigator){
   window.addEventListener("load",function(){
-    navigator.serviceWorker.register("sw.js?v=1.3").then(function(reg){
+    navigator.serviceWorker.register("sw.js?v=1.4").then(function(reg){
       // Check for update immediately
       reg.update();
 
