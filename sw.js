@@ -1,4 +1,4 @@
-const CACHE = "jubilaea-v7";
+const CACHE = "jubilaea-v10";
 const ASSETS = [
   "./index.html",
   "./manifest.json",
