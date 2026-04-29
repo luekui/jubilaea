@@ -104,6 +104,17 @@ body{background:var(--bg);color:var(--tx);font-family:Outfit,sans-serif;font-wei
 .toast.on{pointer-events:all}
 .toast.on{opacity:1;transform:translateX(-50%) translateY(0)}
 .empty{text-align:center;padding:60px 20px;color:var(--t3)}
+
+.stnode{padding:11px 14px;border-radius:10px;background:var(--sf);border:1px solid var(--bd);margin-bottom:5px;cursor:pointer;user-select:none;-webkit-user-select:none}
+.stnode.open{border-color:var(--ac)}
+.stnode.root{border-color:var(--b2);background:var(--s2)}
+.stname{font-size:15px;font-weight:500;display:flex;align-items:center;gap:8px}
+.stinfo{font-size:11px;color:var(--t2);margin-top:3px}
+.stpartner{font-size:11px;color:var(--ac);margin-top:2px}
+.starrow{margin-left:auto;font-size:12px;color:var(--t3);transition:transform .2s;flex-shrink:0}
+.starrow.open{transform:rotate(90deg)}
+.stchildren{margin-left:20px;margin-top:5px;border-left:2px solid var(--bd);padding-left:12px}
+.stnochildren{font-size:12px;color:var(--t3);padding:8px 0 4px;font-style:italic}
 ::-webkit-scrollbar{width:3px}
 ::-webkit-scrollbar-thumb{background:var(--b2);border-radius:3px}
 details summary{cursor:pointer;font-size:12px;color:var(--t2);padding:6px 0;list-style:none}
@@ -177,10 +188,13 @@ details summary::-webkit-details-marker{display:none}
       <div class="drwsl">Daten</div>
       <div class="drwitem" onclick="closeDrw();document.getElementById('impf').click()"><span class="drwic">&#128229;</span><div><div class="drwl">CSVs importieren</div><div class="drwsl2">5 Dateien ausw&#228;hlen, &#252;berschreibt alle Daten</div></div></div>
       <div class="drwitem" onclick="closeDrw();doExport()"><span class="drwic">&#128228;</span><div><div class="drwl">Alle CSVs exportieren</div><div class="drwsl2">5 Dateien im Originalformat</div></div></div>
+      <div class="drwitem" onclick="closeDrw();openStamm()">
+        <span class="drwic">&#127968;</span><div><div class="drwl">Stammbaum</div><div class="drwsl2">Familien erkunden</div></div>
+      </div>
       <div class="drwsl">Info</div>
       <div class="drwitem" style="cursor:default"><span class="drwic">&#128101;</span><div><div class="drwl" id="drwcnt">&#8211;</div><div class="drwsl2" id="drwevs">&#8211;</div></div></div>
     </div>
-    <div class="drwf" id="drwver">Jubilaea &#183; Version <span id="versionLabel">1.2</span></div>
+    <div class="drwf" id="drwver">Jubilaea &#183; Version <span id="versionLabel">1.3</span></div>
   </div>
 </div>
 <div class="ovl" id="ovl" onclick="closeOvl()">
@@ -210,7 +224,7 @@ var MS=["Jan","Feb","M\u00e4r","Apr","Mai","Jun","Jul","Aug","Sep","Okt","Nov","
 var RT=["ist Mutter von","ist Vater von","ist verheiratet mit","ist Partner von","ist geschieden von"];
 var RNDS=[10,15,20,25,30,40,50,60,70,75,80,90,100];
 var TODAY=new Date(),CY=TODAY.getFullYear();
-var APP_VERSION="1.2";
+var APP_VERSION="1.3";
 var DB={ind:{},rel:{},jub:{},nd:{}},CUR=null,SRCH=false,FILTER_NAH=true;
 
 function saveDB(){try{localStorage.setItem("jub7",JSON.stringify(DB));}catch(e){}}
@@ -266,7 +280,7 @@ function buildEvs(){
 }
 
 function showScr(id,back){
-  var ids=["s0","s1","s2"],i,el;
+  var ids=["s0","s1","s2","s3"],i,el;
   for(i=0;i<ids.length;i++){
     el=document.getElementById(ids[i]);if(!el)continue;
     if(ids[i]===id){el.className="scr";}
@@ -672,6 +686,172 @@ function closeOvl(){document.getElementById("ovl").classList.remove("on");}
 var toastT;
 function showToast(msg){var e=document.getElementById("toast");e.textContent=msg;e.classList.add("on");clearTimeout(toastT);toastT=setTimeout(function(){e.classList.remove("on");},2300);}
 
+
+// ── STAMMBAUM ────────────────────────────────────────────────
+var STAMM_OPEN = {}; // tracks which nodes are expanded
+
+function getChildren(pid){
+  // Returns array of person-ids who are children of pid
+  var kids=[], k, r;
+  for(k in DB.rel){
+    r=DB.rel[k];
+    if((r.type==="ist Mutter von"||r.type==="ist Vater von")&&r.i1===pid){
+      kids.push(r.i2);
+    }
+  }
+  // Sort by birth year then birth month/day
+  kids.sort(function(a,b){
+    var pa=DB.ind[a]||{},pb=DB.ind[b]||{};
+    var ya=pa.gj||9999, yb=pb.gj||9999;
+    if(ya!==yb)return ya-yb;
+    if((pa.gm||0)!==(pb.gm||0))return (pa.gm||0)-(pb.gm||0);
+    return (pa.gt||0)-(pb.gt||0);
+  });
+  return kids;
+}
+
+function hasParent(pid){
+  var k,r;
+  for(k in DB.rel){
+    r=DB.rel[k];
+    if((r.type==="ist Mutter von"||r.type==="ist Vater von")&&r.i2===pid) return true;
+  }
+  return false;
+}
+
+function getPartner(pid){
+  var k,r,oid,op;
+  for(k in DB.rel){
+    r=DB.rel[k];
+    if(r.type==="ist verheiratet mit"||r.type==="ist Partner von"){
+      if(r.i1===pid){oid=r.i2;}
+      else if(r.i2===pid){oid=r.i1;}
+      else continue;
+      op=DB.ind[oid];
+      if(op) return pname(op);
+    }
+  }
+  return null;
+}
+
+function getRoots(){
+  // Persons who have children but no registered parents
+  var roots=[], k, p;
+  for(k in DB.ind){
+    p=DB.ind[k];
+    if(!hasParent(k) && getChildren(k).length>0){
+      roots.push(k);
+    }
+  }
+  // Sort roots by last name then first name
+  roots.sort(function(a,b){
+    var pa=DB.ind[a]||{},pb=DB.ind[b]||{};
+    var na=(pa.nn||"")+" "+(pa.vn||"");
+    var nb=(pb.nn||"")+" "+(pb.vn||"");
+    return na.localeCompare(nb);
+  });
+  return roots;
+}
+
+function stammNodeHTML(pid, depth){
+  var p=DB.ind[pid];if(!p)return "";
+  var kids=getChildren(pid);
+  var open=!!STAMM_OPEN[pid];
+  var partner=getPartner(pid);
+  var age="", bday="";
+  if(p.gt&&p.gm){
+    var today=new Date();
+    bday=p.gt+". "+MS[p.gm-1]+(p.gj?" "+p.gj:"");
+    if(p.gj) age=(today.getFullYear()-p.gj)+" J.";
+  }
+  var dead=p.tt&&p.tm?"&#128337; ":"";
+  var html='<div class="stnode'+(depth===0?" root":"")+(open?" open":"")+(kids.length===0?" leaf":"")+'" id="stn_'+pid+'"'+
+    ' onclick="stammClick(event,\''+pid+'\')"'+
+    ' oncontextmenu="stammLong(event,\''+pid+'\')"'+
+    ' ontouchstart="stammTouchStart(event,\''+pid+'\')"'+
+    ' ontouchend="stammTouchEnd(event)"'+
+    '>'+
+    '<div class="stname">'+
+      '<div class="gd" style="background:'+gcol(p.grp)+'"></div>'+
+      dead+esc(pname(p))+
+      (kids.length>0?'<span class="starrow'+(open?" open":"")+'">&#9654;</span>':'')+
+    '</div>'+
+    (age||bday?'<div class="stinfo">'+(age?age+" &middot; ":"")+bday+'</div>':'')+
+    (partner?'<div class="stpartner">&#128141; '+esc(partner)+'</div>':'')+
+  '</div>';
+
+  if(open&&kids.length>0){
+    html+='<div class="stchildren" id="stc_'+pid+'">';
+    for(var i=0;i<kids.length;i++){
+      html+=stammNodeHTML(kids[i], depth+1);
+    }
+    html+='</div>';
+  }
+  return html;
+}
+
+var _stammLongTimer=null;
+var _stammMoved=false;
+
+function stammTouchStart(e,pid){
+  _stammMoved=false;
+  _stammLongTimer=setTimeout(function(){
+    if(!_stammMoved){ stammLong(e,pid); }
+  },500);
+}
+function stammTouchEnd(e){
+  clearTimeout(_stammLongTimer);
+}
+
+function stammClick(e,pid){
+  // Only handle as click if not a long press
+  clearTimeout(_stammLongTimer);
+  if(_stammMoved)return;
+  var kids=getChildren(pid);
+  if(kids.length===0)return;
+  STAMM_OPEN[pid]=!STAMM_OPEN[pid];
+  renderStamm();
+  // Scroll to keep clicked node visible
+  setTimeout(function(){
+    var el=document.getElementById("stn_"+pid);
+    if(el)el.scrollIntoView({behavior:"smooth",block:"nearest"});
+  },50);
+}
+
+function stammLong(e,pid){
+  if(e&&e.preventDefault)e.preventDefault();
+  clearTimeout(_stammLongTimer);
+  openDet(pid);
+}
+
+function renderStamm(){
+  var roots=getRoots();
+  var body=document.getElementById("stammBody");
+  if(!body)return;
+  if(!roots.length){
+    body.innerHTML='<div class="empty"><div style="font-size:40px;margin-bottom:12px">&#127968;</div><div>Keine Eltern-Kind-Beziehungen gefunden</div></div>';
+    return;
+  }
+  var html='<div style="font-size:11px;color:var(--t3);padding:8px 0 14px;letter-spacing:.06em;text-transform:uppercase">'+roots.length+' Stammb\u00e4ume &middot; Tippen = aufklappen &middot; Halten = Details</div>';
+  for(var i=0;i<roots.length;i++){
+    html+=stammNodeHTML(roots[i],0);
+    if(i<roots.length-1)html+='<div style="height:10px"></div>';
+  }
+  body.innerHTML=html;
+
+  // Add touchmove listener to detect scroll vs long press
+  body.addEventListener("touchmove",function(){_stammMoved=true;},{passive:true});
+}
+
+function openStamm(){
+  STAMM_OPEN={};
+  renderStamm();
+  showScr("s3");
+}
+function closeStamm(){
+  showScr("s0",true);
+}
+
 (function init(){
   var go="<option value=\"\">\u2013</option>",mo="<option value=\"\">\u2013</option>",k,i;
   for(k in GRP)go+="<option value=\""+k+"\">"+GRP[k].l+"</option>";
@@ -686,7 +866,7 @@ function showToast(msg){var e=document.getElementById("toast");e.textContent=msg
 <script>
 if("serviceWorker" in navigator){
   window.addEventListener("load",function(){
-    navigator.serviceWorker.register("sw.js?v=1.2").then(function(reg){
+    navigator.serviceWorker.register("sw.js?v=1.3").then(function(reg){
       // Check for update immediately
       reg.update();
 
