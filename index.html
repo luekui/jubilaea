@@ -210,7 +210,7 @@ details summary::-webkit-details-marker{display:none}
       <div class="drwsl">Info</div>
       <div class="drwitem" style="cursor:default"><span class="drwic">&#128101;</span><div><div class="drwl" id="drwcnt">&#8211;</div><div class="drwsl2" id="drwevs">&#8211;</div></div></div>
     </div>
-    <div class="drwf" id="drwver">Jubilaea &#183; Version <span id="versionLabel">1.9</span></div>
+    <div class="drwf" id="drwver">Jubilaea &#183; Version <span id="versionLabel">2.0</span></div>
   </div>
 </div>
 <div class="ovl" id="ovl" onclick="closeOvl()">
@@ -240,7 +240,7 @@ var MS=["Jan","Feb","M\u00e4r","Apr","Mai","Jun","Jul","Aug","Sep","Okt","Nov","
 var RT=["ist Mutter von","ist Vater von","ist verheiratet mit","ist Partner von","ist geschieden von"];
 var RNDS=[10,15,20,25,30,40,50,60,70,75,80,90,100];
 var TODAY=new Date(),CY=TODAY.getFullYear();
-var APP_VERSION="1.9";
+var APP_VERSION="2.0";
 var DB={ind:{},rel:{},jub:{},nd:{}},CUR=null,SRCH=false,FILTER_NAH=true,PREV_SCR="s0";
 
 function saveDB(){try{localStorage.setItem("jub7",JSON.stringify(DB));}catch(e){}}
@@ -353,22 +353,26 @@ function renderTL(){
   el.innerHTML=html;
   setTimeout(function(){
     var mc=document.getElementById("mc");
-    // Find the last day-group with a negative df (past), scroll that to top
-    // so today/upcoming appears just below, not hidden behind header
+    // Find the day-group closest to today but in the past (smallest negative df)
+    // Day groups have data-df attribute set during render
     var groups=mc.querySelectorAll(".dg");
-    var lastPastGroup=null;
-    var todayGroup=null;
+    var bestPast=null;   // closest past group (largest negative = closest to 0)
+    var todayGrp=null;
+    var firstFuture=null;
     for(var gi=0;gi<groups.length;gi++){
-      if(groups[gi].id==="ta"){todayGroup=groups[gi];break;}
-      lastPastGroup=groups[gi];
+      var g=groups[gi];
+      var df=parseInt(g.dataset.df);
+      if(isNaN(df)) continue;
+      if(df===0){todayGrp=g;}
+      else if(df<0){
+        // We want the one closest to 0 (least negative)
+        if(!bestPast||df>parseInt(bestPast.dataset.df)) bestPast=g;
+      } else if(df>0){
+        if(!firstFuture) firstFuture=g;
+      }
     }
-    if(lastPastGroup){
-      mc.scrollTop=lastPastGroup.offsetTop;
-    } else if(todayGroup){
-      mc.scrollTop=todayGroup.offsetTop;
-    } else if(groups.length){
-      mc.scrollTop=groups[0].offsetTop;
-    }
+    var target=bestPast||todayGrp||firstFuture||groups[0];
+    if(target) mc.scrollTop=target.offsetTop;
   },30);
 }
 
@@ -950,7 +954,7 @@ function closeStamm(){
 <script>
 if("serviceWorker" in navigator){
   window.addEventListener("load",function(){
-    navigator.serviceWorker.register("sw.js?v=1.9").then(function(reg){
+    navigator.serviceWorker.register("sw.js?v=2.0").then(function(reg){
       // Check for update immediately
       reg.update();
 
