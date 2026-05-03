@@ -188,6 +188,7 @@ details summary::-webkit-details-marker{display:none}
     <div style="display:flex;align-items:center;gap:10px">
       <button class="bkbtn" onclick="closeStamm()">&#8249; Zur&#252;ck</button>
       <span class="dett">Stammbaum</span>
+      <button class="ibtn togbtn" id="stammTogBtn" onclick="toggleStammRoots()" title="Alle Wurzeln anzeigen">&#127760;</button>
     </div>
     <div class="srchwrap">
       <span class="srchicon">&#128269;</span>
@@ -210,7 +211,7 @@ details summary::-webkit-details-marker{display:none}
       <div class="drwsl">Info</div>
       <div class="drwitem" style="cursor:default"><span class="drwic">&#128101;</span><div><div class="drwl" id="drwcnt">&#8211;</div><div class="drwsl2" id="drwevs">&#8211;</div></div></div>
     </div>
-    <div class="drwf" id="drwver">Jubilaea &#183; Version <span id="versionLabel">2.1</span></div>
+    <div class="drwf" id="drwver">Jubilaea &#183; Version <span id="versionLabel">2.2</span></div>
   </div>
 </div>
 <div class="ovl" id="ovl" onclick="closeOvl()">
@@ -240,7 +241,7 @@ var MS=["Jan","Feb","M\u00e4r","Apr","Mai","Jun","Jul","Aug","Sep","Okt","Nov","
 var RT=["ist Mutter von","ist Vater von","ist verheiratet mit","ist Partner von","ist geschieden von"];
 var RNDS=[10,15,20,25,30,40,50,60,70,75,80,90,100];
 var TODAY=new Date(),CY=TODAY.getFullYear();
-var APP_VERSION="2.1";
+var APP_VERSION="2.2";
 var DB={ind:{},rel:{},jub:{},nd:{}},CUR=null,SRCH=false,FILTER_NAH=true,PREV_SCR="s0";
 
 function saveDB(){try{localStorage.setItem("jub7",JSON.stringify(DB));}catch(e){}}
@@ -718,7 +719,8 @@ function showToast(msg){var e=document.getElementById("toast");e.textContent=msg
 
 // ── STAMMBAUM ────────────────────────────────────────────────
 var STAMM_OPEN = {};
-var STAMM_SRCH = ""; // tracks which nodes are expanded
+var STAMM_SRCH = "";
+var STAMM_ALL_ROOTS = false; // tracks which nodes are expanded
 
 function getChildren(pid){
   // Returns array of person-ids who are children of pid
@@ -865,6 +867,65 @@ function stammLong(e){
 }
 
 
+
+
+function getDeepestRoots(){
+  // Get all roots first
+  var allRoots = getRoots();
+  var rootSet = {};
+  allRoots.forEach(function(id){ rootSet[id] = true; });
+
+  // A root is "deepest" if none of the other roots is their ancestor
+  // i.e. no other root appears in their ancestor chain
+  function getAncestors(pid, visited){
+    if(!visited) visited = {};
+    if(visited[pid]) return visited;
+    visited[pid] = true;
+    var k, r;
+    for(k in DB.rel){
+      r = DB.rel[k];
+      if((r.type==="ist Mutter von"||r.type==="ist Vater von") && r.i2===pid){
+        getAncestors(r.i1, visited);
+      }
+    }
+    return visited;
+  }
+
+  var deepest = allRoots.filter(function(id){
+    var ancestors = getAncestors(id);
+    // Remove self
+    delete ancestors[id];
+    // Check if any ancestor is also a root
+    var k;
+    for(k in ancestors){
+      if(rootSet[k]) return false; // has a root as ancestor -> not deepest
+    }
+    return true;
+  });
+
+  deepest.sort(function(a,b){
+    var pa=DB.ind[a]||{},pb=DB.ind[b]||{};
+    return ((pa.vn||"")+" "+(pa.nn||"")).localeCompare((pb.vn||"")+" "+(pb.nn||""));
+  });
+  return deepest;
+}
+function toggleStammRoots(){
+  STAMM_ALL_ROOTS = !STAMM_ALL_ROOTS;
+  var btn = document.getElementById("stammTogBtn");
+  if(btn){
+    if(STAMM_ALL_ROOTS){
+      btn.innerHTML = "&#128101;";
+      btn.title = "Nur älteste Vorfahren";
+      btn.classList.add("active");
+    } else {
+      btn.innerHTML = "&#127760;";
+      btn.title = "Alle Wurzeln anzeigen";
+      btn.classList.remove("active");
+    }
+  }
+  STAMM_OPEN = {};
+  renderStamm();
+}
 function onStammSrch(q){
   STAMM_SRCH=q;
   var clr=document.getElementById("stammSrchClr");
@@ -910,12 +971,13 @@ function renderStamm(){
       body.addEventListener("touchmove",function(){_stammMoved=true;},{passive:true});
       return;
     }
-    var roots=getRoots();
+    var roots=STAMM_ALL_ROOTS ? getRoots() : getDeepestRoots();
     if(!roots.length){
       body.innerHTML='<div class="empty"><div style="font-size:40px;margin-bottom:12px">&#127968;</div><div>Keine Eltern-Kind-Beziehungen gefunden</div></div>';
       return;
     }
-    var html='<div style="font-size:11px;color:var(--t3);padding:8px 0 14px">'+roots.length+' Stammbäume · Tippen = aufklappen · Halten = Details</div>';
+    var modeLabel=STAMM_ALL_ROOTS?"alle Wurzeln":"&#228;lteste Vorfahren";
+    var html='<div style="font-size:11px;color:var(--t3);padding:8px 0 14px">'+roots.length+' Einträge · '+modeLabel+' · Tippen = aufklappen · Halten = Details</div>';
     for(var i=0;i<roots.length;i++){
       html+=stammNodeHTML(roots[i],0);
       if(i<roots.length-1)html+='<div style="height:10px"></div>';
@@ -929,10 +991,13 @@ function renderStamm(){
 function openStamm(){
   STAMM_OPEN={};
   STAMM_SRCH="";
+  STAMM_ALL_ROOTS=false;
   var inp=document.getElementById("stammSrch");
   if(inp)inp.value="";
   var clr=document.getElementById("stammSrchClr");
   if(clr)clr.style.display="none";
+  var btn=document.getElementById("stammTogBtn");
+  if(btn){btn.innerHTML="&#127760;";btn.classList.remove("active");}
   renderStamm();
   showScr("s3");
 }
@@ -954,7 +1019,7 @@ function closeStamm(){
 <script>
 if("serviceWorker" in navigator){
   window.addEventListener("load",function(){
-    navigator.serviceWorker.register("sw.js?v=2.1").then(function(reg){
+    navigator.serviceWorker.register("sw.js?v=2.2").then(function(reg){
       // Check for update immediately
       reg.update();
 
