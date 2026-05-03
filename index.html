@@ -210,7 +210,7 @@ details summary::-webkit-details-marker{display:none}
       <div class="drwsl">Info</div>
       <div class="drwitem" style="cursor:default"><span class="drwic">&#128101;</span><div><div class="drwl" id="drwcnt">&#8211;</div><div class="drwsl2" id="drwevs">&#8211;</div></div></div>
     </div>
-    <div class="drwf" id="drwver">Jubilaea &#183; Version <span id="versionLabel">2.0</span></div>
+    <div class="drwf" id="drwver">Jubilaea &#183; Version <span id="versionLabel">2.1</span></div>
   </div>
 </div>
 <div class="ovl" id="ovl" onclick="closeOvl()">
@@ -240,7 +240,7 @@ var MS=["Jan","Feb","M\u00e4r","Apr","Mai","Jun","Jul","Aug","Sep","Okt","Nov","
 var RT=["ist Mutter von","ist Vater von","ist verheiratet mit","ist Partner von","ist geschieden von"];
 var RNDS=[10,15,20,25,30,40,50,60,70,75,80,90,100];
 var TODAY=new Date(),CY=TODAY.getFullYear();
-var APP_VERSION="2.0";
+var APP_VERSION="2.1";
 var DB={ind:{},rel:{},jub:{},nd:{}},CUR=null,SRCH=false,FILTER_NAH=true,PREV_SCR="s0";
 
 function saveDB(){try{localStorage.setItem("jub7",JSON.stringify(DB));}catch(e){}}
@@ -331,7 +331,7 @@ function renderTL(){
     ds=d.getDate()+". "+MF[d.getMonth()];
     relStr=df<0?"vor "+Math.abs(df)+" Tag"+(Math.abs(df)!==1?"en":""):df===0?"Heute":df===1?"Morgen":"in "+df+" Tagen";
     isT=(df===0);
-    html+='<div class="dg"'+(isT?' id="ta"':'')+'>'+
+    html+='<div class="dg" data-df="'+df+'"'+(isT?' id="ta"':'')+'>'+
       '<div class="dl'+(isT?" tod":"")+'"><span>'+ds+" &middot; "+relStr+'</span><span class="dll"></span></div>';
     var dayEvs=byDay[df];
     for(var j2=0;j2<dayEvs.length;j2++){
@@ -954,7 +954,7 @@ function closeStamm(){
 <script>
 if("serviceWorker" in navigator){
   window.addEventListener("load",function(){
-    navigator.serviceWorker.register("sw.js?v=2.0").then(function(reg){
+    navigator.serviceWorker.register("sw.js?v=2.1").then(function(reg){
       // Check for update immediately
       reg.update();
 
