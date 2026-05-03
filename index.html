@@ -188,7 +188,7 @@ details summary::-webkit-details-marker{display:none}
     <div style="display:flex;align-items:center;gap:10px">
       <button class="bkbtn" onclick="closeStamm()">&#8249; Zur&#252;ck</button>
       <span class="dett">Stammbaum</span>
-      <button class="ibtn togbtn" id="stammTogBtn" onclick="toggleStammRoots()" title="Alle Wurzeln anzeigen">&#127760;</button>
+      <button class="ibtn togbtn" id="stammTogBtn" onclick="toggleStammRoots()" title="Alle Wurzeln anzeigen">&#128101;</button>
     </div>
     <div class="srchwrap">
       <span class="srchicon">&#128269;</span>
@@ -211,7 +211,7 @@ details summary::-webkit-details-marker{display:none}
       <div class="drwsl">Info</div>
       <div class="drwitem" style="cursor:default"><span class="drwic">&#128101;</span><div><div class="drwl" id="drwcnt">&#8211;</div><div class="drwsl2" id="drwevs">&#8211;</div></div></div>
     </div>
-    <div class="drwf" id="drwver">Jubilaea &#183; Version <span id="versionLabel">2.2</span></div>
+    <div class="drwf" id="drwver">Jubilaea &#183; Version <span id="versionLabel">2.3</span></div>
   </div>
 </div>
 <div class="ovl" id="ovl" onclick="closeOvl()">
@@ -241,7 +241,7 @@ var MS=["Jan","Feb","M\u00e4r","Apr","Mai","Jun","Jul","Aug","Sep","Okt","Nov","
 var RT=["ist Mutter von","ist Vater von","ist verheiratet mit","ist Partner von","ist geschieden von"];
 var RNDS=[10,15,20,25,30,40,50,60,70,75,80,90,100];
 var TODAY=new Date(),CY=TODAY.getFullYear();
-var APP_VERSION="2.2";
+var APP_VERSION="2.3";
 var DB={ind:{},rel:{},jub:{},nd:{}},CUR=null,SRCH=false,FILTER_NAH=true,PREV_SCR="s0";
 
 function saveDB(){try{localStorage.setItem("jub7",JSON.stringify(DB));}catch(e){}}
@@ -870,55 +870,54 @@ function stammLong(e){
 
 
 function getDeepestRoots(){
-  // Get all roots first
-  var allRoots = getRoots();
-  var rootSet = {};
-  allRoots.forEach(function(id){ rootSet[id] = true; });
+  // Urwurzel = Root with at least 3 generations below (has great-grandchildren)
+  // i.e. Person -> Child -> Grandchild -> Great-grandchild must exist
 
-  // A root is "deepest" if none of the other roots is their ancestor
-  // i.e. no other root appears in their ancestor chain
-  function getAncestors(pid, visited){
-    if(!visited) visited = {};
-    if(visited[pid]) return visited;
-    visited[pid] = true;
-    var k, r;
+  function getChildrenOf(pid){
+    var kids=[], k, r;
     for(k in DB.rel){
-      r = DB.rel[k];
-      if((r.type==="ist Mutter von"||r.type==="ist Vater von") && r.i2===pid){
-        getAncestors(r.i1, visited);
-      }
+      r=DB.rel[k];
+      if((r.type==="ist Mutter von"||r.type==="ist Vater von")&&r.i1===pid)
+        kids.push(r.i2);
     }
-    return visited;
+    return kids;
   }
 
-  var deepest = allRoots.filter(function(id){
-    var ancestors = getAncestors(id);
-    // Remove self
-    delete ancestors[id];
-    // Check if any ancestor is also a root
-    var k;
-    for(k in ancestors){
-      if(rootSet[k]) return false; // has a root as ancestor -> not deepest
+  function hasDescendantAtDepth(pid, depth){
+    // Returns true if pid has at least one descendant at given depth
+    // depth=1: has children, depth=2: has grandchildren, depth=3: has great-grandchildren
+    if(depth===0) return true;
+    var kids=getChildrenOf(pid);
+    for(var i=0;i<kids.length;i++){
+      if(hasDescendantAtDepth(kids[i], depth-1)) return true;
     }
-    return true;
+    return false;
+  }
+
+  var allRoots=getRoots();
+  var urwurzeln=allRoots.filter(function(id){
+    return hasDescendantAtDepth(id, 3); // needs great-grandchildren
   });
 
-  deepest.sort(function(a,b){
+  urwurzeln.sort(function(a,b){
     var pa=DB.ind[a]||{},pb=DB.ind[b]||{};
     return ((pa.vn||"")+" "+(pa.nn||"")).localeCompare((pb.vn||"")+" "+(pb.nn||""));
   });
-  return deepest;
+  return urwurzeln;
 }
+
 function toggleStammRoots(){
   STAMM_ALL_ROOTS = !STAMM_ALL_ROOTS;
   var btn = document.getElementById("stammTogBtn");
   if(btn){
     if(STAMM_ALL_ROOTS){
-      btn.innerHTML = "&#128101;";
-      btn.title = "Nur älteste Vorfahren";
+      // All roots mode: 🌐 active
+      btn.innerHTML = "&#127760;";
+      btn.title = "Nur Urwurzeln anzeigen";
       btn.classList.add("active");
     } else {
-      btn.innerHTML = "&#127760;";
+      // Urwurzeln mode: 👥 active (default)
+      btn.innerHTML = "&#128101;";
       btn.title = "Alle Wurzeln anzeigen";
       btn.classList.remove("active");
     }
@@ -997,7 +996,7 @@ function openStamm(){
   var clr=document.getElementById("stammSrchClr");
   if(clr)clr.style.display="none";
   var btn=document.getElementById("stammTogBtn");
-  if(btn){btn.innerHTML="&#127760;";btn.classList.remove("active");}
+  if(btn){btn.innerHTML="&#128101;";btn.classList.remove("active");}
   renderStamm();
   showScr("s3");
 }
@@ -1019,7 +1018,7 @@ function closeStamm(){
 <script>
 if("serviceWorker" in navigator){
   window.addEventListener("load",function(){
-    navigator.serviceWorker.register("sw.js?v=2.2").then(function(reg){
+    navigator.serviceWorker.register("sw.js?v=2.3").then(function(reg){
       // Check for update immediately
       reg.update();
 
