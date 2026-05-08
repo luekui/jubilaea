@@ -211,7 +211,7 @@ details summary::-webkit-details-marker{display:none}
       <div class="drwsl">Info</div>
       <div class="drwitem" style="cursor:default"><span class="drwic">&#128101;</span><div><div class="drwl" id="drwcnt">&#8211;</div><div class="drwsl2" id="drwevs">&#8211;</div></div></div>
     </div>
-    <div class="drwf" id="drwver">Jubilaea &#183; Version <span id="versionLabel">2.8</span></div>
+    <div class="drwf" id="drwver">Jubilaea &#183; Version <span id="versionLabel">2.9</span></div>
   </div>
 </div>
 <div class="ovl" id="ovl" onclick="closeOvl()">
@@ -253,7 +253,7 @@ var RNDS=(function(){
   return r;
 })();
 var TODAY=new Date(),CY=TODAY.getFullYear();
-var APP_VERSION="2.8";
+var APP_VERSION="2.9";
 var DB={ind:{},rel:{},jub:{},nd:{}},CUR=null,SRCH=false,FILTER_NAH=true,PREV_SCR="s0";
 
 function saveDB(){
@@ -1069,12 +1069,18 @@ function checkBackupReminder(){
 function showBackupToast(){
   var t=document.getElementById("toast");
   if(!t)return;
-  t.innerHTML="&#128190; Ungesicherte Änderungen &nbsp;<button onclick="doExport();hideToast()" style="background:var(--ac);color:#0c0c0e;border:none;border-radius:6px;padding:4px 10px;font-size:12px;font-weight:500;cursor:pointer;margin-left:4px">Exportieren</button>";
+  t.innerHTML="";
+  var txt=document.createTextNode("💾 Backup empfohlen ");
+  var btn=document.createElement("button");
+  btn.textContent="Exportieren";
+  btn.setAttribute("style","background:var(--ac);color:#0c0c0e;border:none;border-radius:6px;padding:4px 10px;font-size:12px;font-weight:500;cursor:pointer;margin-left:4px");
+  btn.onclick=function(e){e.stopPropagation();doExport();hideToast();};
+  t.appendChild(txt);
+  t.appendChild(btn);
   t.classList.add("on");
   t.style.whiteSpace="nowrap";
   t.style.pointerEvents="all";
   t.style.bottom="30px";
-  // Don't auto-hide this toast
 }
 
 function hideToast(){
@@ -1097,7 +1103,7 @@ function hideToast(){
 <script>
 if("serviceWorker" in navigator){
   window.addEventListener("load",function(){
-    navigator.serviceWorker.register("sw.js?v=2.8").then(function(reg){
+    navigator.serviceWorker.register("sw.js?v=2.9").then(function(reg){
       // Check for update immediately
       reg.update();
 
