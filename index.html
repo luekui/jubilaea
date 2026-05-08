@@ -211,7 +211,7 @@ details summary::-webkit-details-marker{display:none}
       <div class="drwsl">Info</div>
       <div class="drwitem" style="cursor:default"><span class="drwic">&#128101;</span><div><div class="drwl" id="drwcnt">&#8211;</div><div class="drwsl2" id="drwevs">&#8211;</div></div></div>
     </div>
-    <div class="drwf" id="drwver">Jubilaea &#183; Version <span id="versionLabel">2.7</span></div>
+    <div class="drwf" id="drwver">Jubilaea &#183; Version <span id="versionLabel">2.8</span></div>
   </div>
 </div>
 <div class="ovl" id="ovl" onclick="closeOvl()">
@@ -253,10 +253,15 @@ var RNDS=(function(){
   return r;
 })();
 var TODAY=new Date(),CY=TODAY.getFullYear();
-var APP_VERSION="2.7";
+var APP_VERSION="2.8";
 var DB={ind:{},rel:{},jub:{},nd:{}},CUR=null,SRCH=false,FILTER_NAH=true,PREV_SCR="s0";
 
-function saveDB(){try{localStorage.setItem("jub7",JSON.stringify(DB));}catch(e){}}
+function saveDB(){
+  try{
+    localStorage.setItem("jub7",JSON.stringify(DB));
+    localStorage.setItem("jub7_changed", Date.now());
+  }catch(e){}
+}
 function loadDB(){try{var r=localStorage.getItem("jub7");if(r){var d=JSON.parse(r);if(d&&d.ind&&Object.keys(d.ind).length>0){DB=d;return true;}}}catch(e){}return false;}
 function seedDB(){
   var k,r;
@@ -713,6 +718,7 @@ function doExport(){
   for(k in GRP)gb.push(k+";"+GRP[k].l);
   var files=[["individuals.csv",ih+ib.join("\n")],["jubilees.csv",jh+jb.join("\n")],["relations.csv",rh+rb.join("\n")],["namedays.csv",nh+nb.join("\n")],["groups.csv",gh+gb.join("\n")]];
   files.forEach(function(pair){var a=document.createElement("a");a.href=URL.createObjectURL(new Blob([pair[1]],{type:"text/csv;charset=utf-8"}));a.download=pair[0];a.click();URL.revokeObjectURL(a.href);});
+  localStorage.setItem("jub7_exported", Date.now());
   showToast("5 CSVs exportiert");
 }
 
@@ -726,7 +732,16 @@ function showOvl(t,s,ok,okL){
 function closeOvl(){document.getElementById("ovl").classList.remove("on");}
 
 var toastT;
-function showToast(msg){var e=document.getElementById("toast");e.textContent=msg;e.classList.add("on");clearTimeout(toastT);toastT=setTimeout(function(){e.classList.remove("on");},2300);}
+function showToast(msg){
+  var e=document.getElementById("toast");
+  e.textContent=msg;
+  e.style.whiteSpace="nowrap";
+  e.style.pointerEvents="none";
+  e.style.bottom="88px";
+  e.classList.add("on");
+  clearTimeout(toastT);
+  toastT=setTimeout(function(){e.classList.remove("on");},2300);
+}
 
 
 // ── STAMMBAUM ────────────────────────────────────────────────
@@ -1035,6 +1050,37 @@ function closeStamm(){
   showScr("s0",true);
 }
 
+
+function checkBackupReminder(){
+  try{
+    var changed = parseInt(localStorage.getItem("jub7_changed")||"0");
+    var exported = parseInt(localStorage.getItem("jub7_exported")||"0");
+    if(!changed) return; // no changes ever
+    var now = Date.now();
+    var hoursSinceChange = (now - changed) / 3600000;
+    var hoursSinceExport = exported ? (now - exported) / 3600000 : 9999;
+    // Show reminder if: changed > 24h ago AND (never exported OR exported before last change)
+    if(hoursSinceChange >= 24 && (exported < changed)){
+      showBackupToast();
+    }
+  }catch(e){}
+}
+
+function showBackupToast(){
+  var t=document.getElementById("toast");
+  if(!t)return;
+  t.innerHTML="&#128190; Ungesicherte Änderungen &nbsp;<button onclick="doExport();hideToast()" style="background:var(--ac);color:#0c0c0e;border:none;border-radius:6px;padding:4px 10px;font-size:12px;font-weight:500;cursor:pointer;margin-left:4px">Exportieren</button>";
+  t.classList.add("on");
+  t.style.whiteSpace="nowrap";
+  t.style.pointerEvents="all";
+  t.style.bottom="30px";
+  // Don't auto-hide this toast
+}
+
+function hideToast(){
+  var t=document.getElementById("toast");
+  if(t){t.classList.remove("on");t.style.pointerEvents="none";}
+}
 (function init(){
   var go="<option value=\"\">\u2013</option>",mo="<option value=\"\">\u2013</option>",k,i;
   for(k in GRP)go+="<option value=\""+k+"\">"+GRP[k].l+"</option>";
@@ -1043,13 +1089,15 @@ function closeStamm(){
   var em=document.getElementById("nGM");if(em)em.innerHTML=mo;
   if(!loadDB())seedDB();
   renderTL();
+  // Check if backup reminder needed (after short delay)
+  setTimeout(checkBackupReminder, 1500);
 })();
 
 </script>
 <script>
 if("serviceWorker" in navigator){
   window.addEventListener("load",function(){
-    navigator.serviceWorker.register("sw.js?v=2.7").then(function(reg){
+    navigator.serviceWorker.register("sw.js?v=2.8").then(function(reg){
       // Check for update immediately
       reg.update();
 
